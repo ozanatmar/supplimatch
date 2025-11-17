@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SuppliMatch – Copacker Register</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    header { background: #f5f5f5; padding: 15px; display: flex; gap: 20px; }
+    header a { text-decoration: none; color: #333; font-weight: bold; }
+
+    .container { padding: 20px; max-width: 600px; margin: auto; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input, select { width: 100%; padding: 8px; margin-top: 5px; }
+
+    .multiselect-group { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .toggle-btn {
+      padding: 8px 12px;
+      border: 1px solid #999;
+      border-radius: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .toggle-btn.active {
+      background: #4caf50;
+      color: white;
+      border-color: #4caf50;
+    }
+
+    button[type="submit"] {
+      margin-top: 20px;
+      padding: 10px 15px;
+      background: #007bff;
+      border: none;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="/index.html">Landing Page</a>
+  <a href="/copacker-register.html">Copacker Register</a>
+  <a href="/client-request.html">Client Request</a>
+</header>
+
+<div class="container">
+  <h2>Copacker Registration</h2>
+
+  <form id="copackerForm">
+
+    <!-- Contact name -->
+    <label>Contact Name *</label>
+    <input type="text" name="contact_name" required 
+           pattern="[A-Za-z\s]+">
+
+    <!-- Company name -->
+    <label>Company Name *</label>
+    <input type="text" name="company_name" required 
+           pattern="[A-Za-z0-9.\-\s]+">
+
+    <!-- Contact email -->
+    <label>Email *</label>
+    <input type="email" name="email" required>
+
+    <!-- Country -->
+    <label>Country *</label>
+    <select name="country" required>
+      <option value="">Select country</option>
+      <option value="Bulgaria">Bulgaria</option>
+      <option value="Turkey">Turkey</option>
+      <option value="USA">USA</option>
+      <option value="Germany">Germany</option>
+      <option value="UK">UK</option>
+      <!-- Add more later -->
+    </select>
+
+    <!-- State -->
+    <label>State</label>
+    <input type="text" name="state"
+           pattern="[A-Za-z0-9\s]+">
+
+    <!-- Town -->
+    <label>Town *</label>
+    <input type="text" name="town" required
+           pattern="[A-Za-z0-9\s]+">
+
+    <!-- ZIP -->
+    <label>ZIP Code *</label>
+    <input type="text" name="zip" required
+           pattern="[A-Za-z0-9\-.,\s]+">
+
+    <!-- Street -->
+    <label>Street Address</label>
+    <input type="text" name="street"
+           pattern="[A-Za-z0-9\-.,\s]+">
+
+    <!-- Phone -->
+    <label>Phone Number (+country code)</label>
+    <input type="tel" name="phone"
+           pattern="^\+?[0-9\s\-()]+$">
+
+    <!-- Supplement forms -->
+    <label>Supplement Forms *</label>
+    <div class="multiselect-group" id="formsGroup">
+      <div class="toggle-btn" data-value="Capsules">Capsules</div>
+      <div class="toggle-btn" data-value="Tablets">Tablets</div>
+      <div class="toggle-btn" data-value="Powders">Powders</div>
+      <div class="toggle-btn" data-value="Liquids">Liquids</div>
+      <div class="toggle-btn" data-value="Softgels">Softgels</div>
+      <div class="toggle-btn" data-value="Gummies">Gummies</div>
+    </div>
+
+    <!-- Packaging types -->
+    <label>Packaging Types *</label>
+    <div class="multiselect-group" id="packagingGroup">
+      <div class="toggle-btn" data-value="Bottles">Bottles</div>
+      <div class="toggle-btn" data-value="Sachets">Sachets</div>
+      <div class="toggle-btn" data-value="Blisters">Blisters</div>
+      <div class="toggle-btn" data-value="Jars">Jars</div>
+      <div class="toggle-btn" data-value="Pouches">Pouches</div>
+      <div class="toggle-btn" data-value="Stick Packs">Stick Packs</div>
+    </div>
+
+    <button type="submit">Submit</button>
+
+  </form>
+</div>
+
+<script>
+  // Toggle button logic
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+    });
+  });
+
+  // Submit + webhook
+  document.getElementById('copackerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const getSelected = (groupId) =>
+      [...document.querySelectorAll(`#${groupId} .toggle-btn.active`)]
+        .map(b => b.dataset.value);
+
+    const forms = getSelected("formsGroup");
+    const packaging = getSelected("packagingGroup");
+
+    if (forms.length === 0) {
+      alert("Please select at least one supplement form.");
+      return;
+    }
+    if (packaging.length === 0) {
+      alert("Please select at least one packaging type.");
+      return;
+    }
+
+    const data = {
+      contact_name: e.target.contact_name.value,
+      company_name: e.target.company_name.value,
+      email: e.target.email.value,
+      country: e.target.country.value,
+      state: e.target.state.value,
+      town: e.target.town.value,
+      zip: e.target.zip.value,
+      street: e.target.street.value,
+      phone: e.target.phone.value,
+      forms,
+      packaging
+    };
+
+    // Replace with your Make.com webhook URL:
+    const webhookURL = "https://HOOK_URL_HERE";
+
+    await fetch(webhookURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    alert("Submitted successfully!");
+    e.target.reset();
+
+    document.querySelectorAll('.toggle-btn.active')
+      .forEach(btn => btn.classList.remove('active'));
+  });
+</script>
+
+</body>
+</html>

@@ -36,6 +36,12 @@
       cursor: pointer;
       border-radius: 4px;
     }
+
+    .help-text {
+      font-size: 12px;
+      color: #888;
+      margin-top: 3px;
+    }
   </style>
 </head>
 <body>
@@ -53,17 +59,18 @@
 
     <!-- Contact name -->
     <label>Contact Name *</label>
-    <input type="text" name="contact_name" required 
-           pattern="[A-Za-z\s]+">
+    <input type="text" name="contact_name" required pattern="[A-Za-z\s]+">
+    <div class="help-text">Allowed: letters and spaces only</div>
 
     <!-- Company name -->
     <label>Company Name *</label>
-    <input type="text" name="company_name" required 
-           pattern="[A-Za-z0-9.\-\s]+">
+    <input type="text" name="company_name" required pattern="[A-Za-z0-9.\-\s]+">
+    <div class="help-text">Allowed: letters, numbers, dots, dashes, spaces</div>
 
     <!-- Contact email -->
     <label>Email *</label>
     <input type="email" name="email" required>
+    <div class="help-text">Must be a valid email address</div>
 
     <!-- Country -->
     <label>Country *</label>
@@ -76,34 +83,36 @@
       <option value="UK">UK</option>
       <!-- Add more later -->
     </select>
+    <div class="help-text">Select your country</div>
 
     <!-- State -->
     <label>State</label>
-    <input type="text" name="state"
-           pattern="[A-Za-z0-9\s]+">
+    <input type="text" name="state" pattern="[A-Za-z0-9\s]+">
+    <div class="help-text">Allowed: letters, numbers, spaces</div>
 
     <!-- Town -->
     <label>Town *</label>
-    <input type="text" name="town" required
-           pattern="[A-Za-z0-9\s]+">
+    <input type="text" name="town" required pattern="[A-Za-z0-9\s]+">
+    <div class="help-text">Allowed: letters, numbers, spaces</div>
 
     <!-- ZIP -->
     <label>ZIP Code *</label>
-    <input type="text" name="zip" required
-           pattern="[A-Za-z0-9\-.,\s]+">
+    <input type="text" name="zip" required pattern="[A-Za-z0-9\-.,\s]+">
+    <div class="help-text">Allowed: letters, numbers, dashes, dots, commas, spaces</div>
 
     <!-- Street -->
     <label>Street Address</label>
-    <input type="text" name="street"
-           pattern="[A-Za-z0-9\-.,\s]+">
+    <input type="text" name="street" pattern="[A-Za-z0-9\-.,\s]+">
+    <div class="help-text">Allowed: letters, numbers, dashes, dots, commas, spaces</div>
 
     <!-- Phone -->
     <label>Phone Number (+country code)</label>
-    <input type="tel" name="phone"
-           pattern="^\+?[0-9\s\-()]+$">
+    <input type="tel" name="phone" pattern="^\+?[0-9\s\-()]+$">
+    <div class="help-text">Allowed: +, digits, spaces, dashes, parentheses</div>
 
     <!-- Supplement forms -->
     <label>Supplement Forms *</label>
+    <div class="help-text">Select at least one supplement form</div>
     <div class="multiselect-group" id="formsGroup">
       <div class="toggle-btn" data-value="Capsules">Capsules</div>
       <div class="toggle-btn" data-value="Tablets">Tablets</div>
@@ -115,6 +124,7 @@
 
     <!-- Packaging types -->
     <label>Packaging Types *</label>
+    <div class="help-text">Select at least one packaging type</div>
     <div class="multiselect-group" id="packagingGroup">
       <div class="toggle-btn" data-value="Bottles">Bottles</div>
       <div class="toggle-btn" data-value="Sachets">Sachets</div>
@@ -171,8 +181,7 @@
       packaging
     };
 
-    // Replace with your Make.com webhook URL:
-    const webhookURL = "https://HOOK_URL_HERE";
+    const webhookURL = "https://hook.eu2.make.com/b9vc54muqd8898ph4187nrdovte2tiod";
 
     await fetch(webhookURL, {
       method: "POST",

@@ -1,12 +1,992 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Simple Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplement Co-Packer Match</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-blue': '#10b981', // Emerald green/blue for health vibe
+                        'primary-dark': '#0f766e',
+                        'secondary-gray': '#f3f4f6',
+                        'card-bg': '#ffffff',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e5e7eb;
+        }
+        .scrollable-content {
+            height: calc(100vh - 180px); /* Adjust based on header/footer size */
+            overflow-y: auto;
+        }
+        /* Custom scrollbar for aesthetics */
+        .scrollable-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .scrollable-content::-webkit-scrollbar-thumb {
+            background-color: #a7f3d0;
+            border-radius: 3px;
+        }
+        .chat-container {
+            height: calc(100vh - 250px);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column-reverse; /* Display new messages at the bottom */
+        }
+    </style>
 </head>
-<body>
-  <h1>Hello!</h1>
-  <p>This is a simple HTML page.</p>
+<body class="min-h-screen">
+
+    <!-- Firebase SDK Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, onSnapshot, collection, query, where, arrayUnion, Timestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase variables
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, db, auth;
+        let userId = null;
+        let isAuthReady = false;
+
+        // Ensure we have a valid config before initializing
+        if (Object.keys(firebaseConfig).length > 0) {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            // Set debug logging for Firestore (recommended)
+            setLogLevel('Debug');
+
+            // Authentication Setup
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    document.getElementById('user-id-display').textContent = `Member ID: ${userId}`;
+                } else {
+                    // Sign in or handle anonymous user
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        console.error("Authentication failed:", error);
+                        // Fallback to a random ID if anonymous sign-in fails
+                        userId = 'anon-' + crypto.randomUUID();
+                    }
+                }
+                isAuthReady = true;
+                // Once authenticated, start the application logic
+                if (window.initApp) window.initApp();
+            });
+        } else {
+            console.error("Firebase configuration is missing. Running in simulated mode.");
+            userId = 'simulated-' + crypto.randomUUID();
+            document.getElementById('user-id-display').textContent = `Member ID (Simulated): ${userId}`;
+            isAuthReady = true;
+            if (window.initApp) window.initApp();
+        }
+
+        // Expose Firebase objects and utilities to the global scope for use in the main script
+        window.db = db;
+        window.auth = auth;
+        window.getUserId = () => userId;
+        window.getIsAuthReady = () => isAuthReady;
+        window.Firestore = {
+            doc, getDoc, addDoc, setDoc, updateDoc, onSnapshot, collection, query, where, arrayUnion, Timestamp, getDocs
+        };
+        window.APP_ID = appId;
+    </script>
+
+    <!-- Main Application UI -->
+    <div id="app-container" class="flex flex-col min-h-screen bg-secondary-gray">
+
+        <!-- Header -->
+        <header class="bg-card-bg shadow-lg p-4 sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-primary-dark">Supplement Match</h1>
+                <div class="flex items-center space-x-4">
+                    <!-- Updated Label to reflect "Membership" -->
+                    <span id="user-id-display" class="text-xs text-gray-500 hidden sm:block">Member ID: Loading...</span>
+
+                    <!-- Role Switcher -->
+                    <div class="flex items-center bg-secondary-gray p-1 rounded-full shadow-inner">
+                        <button id="role-owner-btn" class="px-3 py-1 text-sm font-medium rounded-full transition duration-150 bg-primary-blue text-white shadow-md">Brand Owner</button>
+                        <button id="role-copacker-btn" class="px-3 py-1 text-sm font-medium rounded-full transition duration-150 text-gray-700 hover:text-primary-dark">Co-packer</button>
+                    </div>
+
+                    <button id="dashboard-btn" class="text-gray-600 hover:text-primary-dark transition duration-150 font-medium">Dashboard</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow p-4 sm:p-6 max-w-7xl mx-auto w-full">
+            <!-- Loading Indicator -->
+            <div id="loading-view" class="flex justify-center items-center h-full min-h-[50vh]">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-blue"></div>
+                <p class="ml-4 text-primary-dark font-medium">Loading Application Data...</p>
+            </div>
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="hidden">
+                <h2 id="dashboard-title" class="text-3xl font-extrabold text-gray-800 mb-6"></h2>
+                <div id="dashboard-content" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <!-- Cards will be injected here -->
+                </div>
+            </div>
+
+            <!-- Chat View -->
+            <div id="chat-view" class="hidden bg-card-bg rounded-xl shadow-2xl p-6 h-[80vh] flex flex-col">
+                <div class="flex justify-between items-center pb-4 border-b border-gray-200 mb-4">
+                    <h2 class="text-2xl font-bold text-primary-dark">Chat with Match</h2>
+                    <div id="contact-reveal-status" class="flex items-center space-x-2">
+                        <!-- Reveal Button or Status -->
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div id="chat-messages" class="chat-container flex-grow space-y-4 p-2 mb-4 rounded-lg bg-secondary-gray/50">
+                    <!-- Messages go here -->
+                </div>
+
+                <!-- Chat Input -->
+                <div id="chat-input-area" class="flex space-x-3 pt-4">
+                    <input type="text" id="chat-message-input" placeholder="Type your anonymous message..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-primary-blue focus:border-primary-blue shadow-sm" maxlength="500">
+                    <button id="send-message-btn" class="bg-primary-blue text-white px-6 py-3 rounded-xl font-semibold hover:bg-primary-dark transition duration-200 shadow-md active:scale-[.98]">
+                        Send
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notification/Modal Container -->
+            <div id="modal-container" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden justify-center items-center">
+                <!-- Modal content injected here -->
+            </div>
+        </main>
+
+        <!-- Footer (optional) -->
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script type="module">
+        // Global variables for main application state
+        let currentRole = 'owner'; // 'owner' or 'copacker'
+        let currentView = 'dashboard';
+        let activeChatId = null;
+        let activeProject = null;
+        let unsubscribeChat = null;
+
+        // DOM Elements
+        const DOM = {
+            loadingView: document.getElementById('loading-view'),
+            dashboardView: document.getElementById('dashboard-view'),
+            dashboardTitle: document.getElementById('dashboard-title'),
+            dashboardContent: document.getElementById('dashboard-content'),
+            chatView: document.getElementById('chat-view'),
+            chatMessages: document.getElementById('chat-messages'),
+            chatMessageInput: document.getElementById('chat-message-input'),
+            sendMessageBtn: document.getElementById('send-message-btn'),
+            contactRevealStatus: document.getElementById('contact-reveal-status'),
+            modalContainer: document.getElementById('modal-container'),
+            roleOwnerBtn: document.getElementById('role-owner-btn'),
+            roleCopackerBtn: document.getElementById('role-copacker-btn'),
+            dashboardBtn: document.getElementById('dashboard-btn'),
+        };
+
+        // --- Core UI Functions ---
+
+        /**
+         * Switches the main application view.
+         * @param {string} viewName - The ID of the view to show ('dashboard', 'chat').
+         */
+        const showView = (viewName) => {
+            currentView = viewName;
+            DOM.loadingView.classList.add('hidden');
+            DOM.dashboardView.classList.add('hidden');
+            DOM.chatView.classList.add('hidden');
+
+            if (unsubscribeChat) {
+                unsubscribeChat();
+                unsubscribeChat = null;
+            }
+
+            if (viewName === 'dashboard') {
+                DOM.dashboardView.classList.remove('hidden');
+                renderDashboard();
+            } else if (viewName === 'chat') {
+                DOM.chatView.classList.remove('hidden');
+                listenToChatMessages();
+            }
+        };
+
+        /**
+         * Toggles the active role and updates the dashboard.
+         * @param {string} role - 'owner' or 'copacker'.
+         */
+        const toggleRole = (role) => {
+            currentRole = role;
+            // Reset button styles
+            DOM.roleOwnerBtn.classList.remove('bg-primary-blue', 'text-white', 'shadow-md');
+            DOM.roleCopackerBtn.classList.remove('bg-primary-blue', 'text-white', 'shadow-md');
+            DOM.roleOwnerBtn.classList.add('text-gray-700', 'hover:text-primary-dark');
+            DOM.roleCopackerBtn.classList.add('text-gray-700', 'hover:text-primary-dark');
+
+            // Set active button style
+            if (role === 'owner') {
+                DOM.roleOwnerBtn.classList.add('bg-primary-blue', 'text-white', 'shadow-md');
+                DOM.roleOwnerBtn.classList.remove('text-gray-700', 'hover:text-primary-dark');
+            } else {
+                DOM.roleCopackerBtn.classList.add('bg-primary-blue', 'text-white', 'shadow-md');
+                DOM.roleCopackerBtn.classList.remove('text-gray-700', 'hover:text-primary-dark');
+            }
+
+            if (currentView === 'dashboard') {
+                renderDashboard();
+            }
+        };
+
+        /**
+         * Displays a custom modal.
+         * @param {string} title - Modal title.
+         * @param {string} contentHtml - HTML content for the modal body.
+         * @param {string} footerHtml - HTML content for the modal footer (buttons).
+         */
+        const showModal = (title, contentHtml, footerHtml = '') => {
+            const modalContent = `
+                <div class="bg-card-bg rounded-xl shadow-2xl w-full max-w-lg p-6 m-4 transform transition-all scale-100">
+                    <div class="flex justify-between items-center border-b pb-3 mb-4">
+                        <h3 class="text-xl font-bold text-primary-dark">${title}</h3>
+                        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">&times;</button>
+                    </div>
+                    <div class="text-gray-700 space-y-4">
+                        ${contentHtml}
+                    </div>
+                    ${footerHtml ? `<div class="mt-6 pt-4 border-t flex justify-end space-x-3">${footerHtml}</div>` : ''}
+                </div>
+            `;
+            DOM.modalContainer.innerHTML = modalContent;
+            DOM.modalContainer.classList.remove('hidden');
+            DOM.modalContainer.classList.add('flex');
+        };
+
+        window.closeModal = () => {
+            DOM.modalContainer.classList.add('hidden');
+            DOM.modalContainer.classList.remove('flex');
+        };
+
+        // --- Firebase/Firestore Access Utilities ---
+
+        const PROJECTS_PATH = `artifacts/${window.APP_ID}/public/data/projects`;
+        const CHATS_PATH = `artifacts/${window.APP_ID}/public/data/chats`;
+        const SETTINGS_PATH = `artifacts/${window.APP_ID}/public/data/settings`;
+
+        /**
+         * Creates a reference to a document path or a collection in Firestore.
+         * @param {string} collectionName - The name of the collection ('projects', 'chats', 'settings').
+         * @param {string} [docId] - Optional document ID. If provided, returns a DocumentReference; otherwise, returns a CollectionReference.
+         */
+        const getDocRef = (collectionName, docId) => {
+            if (!window.db) return null;
+
+            let path = '';
+            if (collectionName === 'projects') path = PROJECTS_PATH;
+            else if (collectionName === 'chats') path = CHATS_PATH;
+            else if (collectionName === 'settings') path = SETTINGS_PATH;
+
+            if (!path) {
+                console.error(`Invalid collection name provided: ${collectionName}`);
+                return null;
+            }
+
+            if (docId) {
+                // Defensive check to fix "Function doc() cannot be called with an empty path."
+                if (typeof docId !== 'string' || docId.trim() === '') {
+                    console.error("Error: Document ID cannot be empty or invalid when requesting a document reference for collection:", collectionName);
+                    return null;
+                }
+                // Returns a DocumentReference
+                return window.Firestore.doc(window.db, path, docId);
+            }
+            // Returns a CollectionReference
+            return window.Firestore.collection(window.db, path);
+        };
+
+        // --- Dashboard Logic ---
+
+        /**
+         * Renders the dashboard based on the current user role.
+         */
+        const renderDashboard = async () => {
+            DOM.dashboardContent.innerHTML = '<div class="col-span-full flex justify-center py-8"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-blue"></div></div>';
+            
+            if (!window.getIsAuthReady()) return;
+
+            try {
+                const projectsCollectionRef = getDocRef('projects');
+                if (!projectsCollectionRef) {
+                    DOM.dashboardContent.innerHTML = `<div class="col-span-full text-red-600 p-4">Error: Database connection failed.</div>`;
+                    return;
+                }
+                let q;
+
+                if (currentRole === 'owner') {
+                    DOM.dashboardTitle.textContent = 'My Supplement Projects (Brand Owner)';
+                    // Owner view: Show my projects
+                    q = window.Firestore.query(projectsCollectionRef, window.Firestore.where('ownerId', '==', window.getUserId()));
+                } else {
+                    DOM.dashboardTitle.textContent = 'Available Co-packing Opportunities (Co-packer)';
+                    // Co-packer view: Show all open projects (for them to express interest)
+                    // We intentionally show all projects for visibility in a single-user demo environment
+                    q = window.Firestore.query(projectsCollectionRef);
+                }
+
+                const querySnapshot = await window.Firestore.getDocs(q);
+                let html = '';
+
+                if (currentRole === 'owner') {
+                    // Add "Create New Project" button for Brand Owners first
+                    const createButtonHtml = `
+                        <button onclick="openNewProjectModal()" class="col-span-full p-6 bg-primary-blue text-white rounded-xl shadow-lg hover:bg-primary-dark transition duration-200 font-semibold flex items-center justify-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Create New Project Request
+                        </button>
+                    `;
+                    html += createButtonHtml;
+                }
+
+                if (querySnapshot.empty && !html) {
+                    html = `<div class="col-span-full p-8 bg-card-bg rounded-xl shadow-lg text-center text-gray-500">
+                        No projects found. ${currentRole === 'owner' ? 'Click above to create one!' : 'Check back later for new opportunities.'}
+                    </div>`;
+                } else {
+                    querySnapshot.forEach(docSnapshot => {
+                        const data = docSnapshot.data();
+                        // Only add project card if it's not the current user's own project when acting as a copacker
+                        if (currentRole === 'owner' || data.ownerId !== window.getUserId()) {
+                             html += createProjectCard(docSnapshot.id, data);
+                        }
+                    });
+                }
+                
+                // If the user is a copacker and the list is empty after filtering out their own projects
+                if(currentRole === 'copacker' && html === '') {
+                    html = `<div class="col-span-full p-8 bg-card-bg rounded-xl shadow-lg text-center text-gray-500">
+                        No other projects are currently available.
+                    </div>`;
+                }
+
+                DOM.dashboardContent.innerHTML = html;
+
+
+            } catch (error) {
+                console.error("Error rendering dashboard:", error);
+                DOM.dashboardContent.innerHTML = `<div class="col-span-full text-red-600 p-4">Error loading data: ${error.message}</div>`;
+            }
+        };
+
+        /**
+         * Creates the HTML structure for a single project card.
+         */
+        const createProjectCard = (projectId, project) => {
+            const currentId = window.getUserId();
+            const isOwner = project.ownerId === currentId;
+            let actionText = 'View Matches';
+            let actionFunction = `viewProjectMatches('${projectId}')`;
+            let statusBadge = 'ANONYMOUS';
+            let statusColor = 'bg-green-500';
+            
+            if (project.isContactRevealed) {
+                statusBadge = 'REVEALED';
+                statusColor = 'bg-red-500';
+            }
+
+            if (!isOwner) {
+                 actionText = 'Express Interest';
+                 actionFunction = `expressInterest('${projectId}')`;
+                 // If the copacker has already expressed interest, update the text
+                 if (project.copackerMatchIds && project.copackerMatchIds.includes(currentId)) {
+                    actionText = 'Continue Chat';
+                    // We need to fetch the existing chat ID to continue
+                    actionFunction = `expressInterest('${projectId}', true)`; // Pass true to indicate "continue" intention
+                 }
+            }
+
+
+            return `
+                <div class="bg-card-bg rounded-xl shadow-lg p-6 border-t-4 border-primary-blue flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">${project.title}</h3>
+                            <span class="text-xs font-semibold py-1 px-3 rounded-full text-white ${statusColor}">
+                                ${statusBadge}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-4 line-clamp-3">${project.description}</p>
+                        <div class="text-sm space-y-1 mb-4">
+                            <p><strong class="font-medium text-primary-dark">Requirements:</strong> ${project.requirements || 'N/A'}</p>
+                            <p><strong class="font-medium text-primary-dark">Budget:</strong> ${project.budgetRange || 'Negotiable'}</p>
+                        </div>
+                    </div>
+                    <button onclick="${actionFunction}"
+                            class="mt-4 w-full bg-primary-blue text-white py-2 rounded-lg font-semibold hover:bg-primary-dark transition duration-200 shadow-md">
+                        ${actionText}
+                    </button>
+                </div>
+            `;
+        };
+
+        // --- Project/Interest Logic ---
+
+        /**
+         * (Co-packer) Expresses interest in a project, which starts or continues a chat.
+         * @param {string} projectId
+         * @param {boolean} [isContinue=false] - If true, assumes a chat already exists and skips the update.
+         */
+        window.expressInterest = async (projectId, isContinue = false) => {
+            if (!window.getIsAuthReady()) return;
+
+            try {
+                const projectRef = getDocRef('projects', projectId);
+                const projectDoc = await window.Firestore.getDoc(projectRef);
+                const projectData = projectDoc.data();
+
+                if (!projectData) throw new Error("Project not found.");
+
+                const copackerId = window.getUserId();
+                const ownerId = projectData.ownerId;
+                const participants = [copackerId, ownerId].sort();
+
+                const chatsRef = getDocRef('chats');
+                if (!chatsRef) throw new Error("Database reference failed for chats.");
+
+                // 1. Find existing chat
+                const q = window.Firestore.query(chatsRef,
+                    window.Firestore.where('projectId', '==', projectId),
+                    window.Firestore.where('participants', 'array-contains-any', participants), // Use array-contains-any as a quick filter
+                );
+                const existingChatsSnapshot = await window.Firestore.getDocs(q);
+
+                let chatId;
+                let existingChatDoc = existingChatsSnapshot.docs.find(d => {
+                    // Refine search to ensure both are in the participants array
+                    const data = d.data();
+                    return data.participants.includes(copackerId) && data.participants.includes(ownerId);
+                });
+
+                if (existingChatDoc) {
+                    // Chat exists, use it
+                    chatId = existingChatDoc.id;
+                    console.log("Existing chat found:", chatId);
+                } else {
+                    // 2. Create a new chat
+                    const newChat = {
+                        projectId: projectId,
+                        participants: participants,
+                        messages: [],
+                        isContactRevealed: false,
+                        createdAt: window.Firestore.Timestamp.now(),
+                    };
+                    const chatRef = await window.Firestore.addDoc(chatsRef, newChat);
+                    chatId = chatRef.id;
+                    console.log("New chat created:", chatId);
+
+                    // 3. Update the project document (only if it's the first time interest is expressed)
+                    if (!isContinue) {
+                        await window.Firestore.updateDoc(projectRef, {
+                            copackerMatchIds: window.Firestore.arrayUnion(copackerId)
+                        });
+                    }
+                }
+
+                startChat(chatId, projectId);
+                // Refresh dashboard to show "Continue Chat" if it was "Express Interest"
+                if (!isContinue) renderDashboard(); 
+
+            } catch (error) {
+                console.error("Error expressing interest:", error);
+                showModal('Error', `<p class="text-red-500">Failed to start chat: ${error.message}</p>`);
+            }
+        };
+
+        /**
+         * (Brand Owner) Views matches (copackerMatchIds) and allows starting a chat.
+         * @param {string} projectId
+         */
+        window.viewProjectMatches = async (projectId) => {
+            const projectRef = getDocRef('projects', projectId);
+            if (!projectRef) return;
+            const projectDoc = await window.Firestore.getDoc(projectRef);
+            activeProject = { id: projectId, ...projectDoc.data() };
+
+            const matches = activeProject.copackerMatchIds || [];
+            let contentHtml = `<p class="font-medium text-gray-800">Potential Matches for <strong>${activeProject.title}</strong>:</p>`;
+
+            if (matches.length === 0) {
+                contentHtml += `<p class="text-gray-500 mt-4 p-3 bg-secondary-gray rounded-lg">No co-packers have expressed interest yet.</p>`;
+                showModal('View Matches', contentHtml);
+                return;
+            }
+
+            contentHtml += `<ul class="list-disc pl-5 mt-4 space-y-3">`;
+            
+            matches.forEach((matchId, index) => {
+                // Find chat ID based on project and both participants
+                const startChatCode = `startChatByParticipants('${projectId}', '${matchId}')`;
+                
+                // Note: The copacker ID is shown here for demo purposes as an anonymous identifier
+                contentHtml += `
+                    <li class="flex justify-between items-center text-sm bg-secondary-gray p-3 rounded-lg">
+                        <span class="font-mono text-xs">Copacker ID: ${matchId.substring(0, 10)}...</span>
+                        <button onclick="${startChatCode}" class="text-primary-blue hover:underline font-semibold ml-4">Start/Continue Chat</button>
+                    </li>
+                `;
+            });
+            contentHtml += `</ul>`;
+
+            showModal('View Matches', contentHtml);
+        };
+
+        /**
+         * Finds or creates a chat ID given a projectId and two participant IDs.
+         * @param {string} projectId
+         * @param {string} otherParticipantId
+         */
+        window.startChatByParticipants = async (projectId, otherParticipantId) => {
+            closeModal();
+            // Start the full flow to ensure chat is created if missing, then jump to chat view
+            // Since the Brand Owner is initiating, they are guaranteed to be the 'owner' role.
+            await window.expressInterest(projectId, true);
+        };
+
+        /**
+         * Starts the chat view for a given chat ID.
+         * @param {string} chatId
+         * @param {string} projectId
+         */
+        const startChat = (chatId, projectId) => {
+            activeChatId = chatId;
+            activeProject = { id: projectId }; // Minimal project info needed for chat
+            showView('chat');
+        };
+
+        // --- Chat Logic ---
+
+        /**
+         * Listens to real-time updates for the active chat.
+         */
+        const listenToChatMessages = () => {
+            if (!activeChatId || !window.db) return;
+
+            const chatRef = getDocRef('chats', activeChatId);
+            if (!chatRef) return;
+
+            unsubscribeChat = window.Firestore.onSnapshot(chatRef, (docSnapshot) => {
+                if (!docSnapshot.exists()) {
+                    console.error("Chat does not exist.");
+                    return;
+                }
+                const chatData = docSnapshot.data();
+                // Update activeProject with full chat data, including projectId
+                activeProject = { ...activeProject, ...chatData }; 
+
+                renderMessages(chatData.messages || []);
+                renderRevealStatus(chatData.isContactRevealed);
+            }, (error) => {
+                console.error("Error listening to chat:", error);
+                unsubscribeChat = null;
+            });
+        };
+
+        /**
+         * Renders the list of messages in the chat UI.
+         * @param {Array} messages
+         */
+        const renderMessages = (messages) => {
+            DOM.chatMessages.innerHTML = '';
+            const currentUserId = window.getUserId();
+
+            // Sort by timestamp for display order (oldest first, then reverse for chat display)
+            const sortedMessages = messages.sort((a, b) => a.timestamp.toDate() - b.timestamp.toDate()).reverse();
+
+            const html = sortedMessages.map(msg => {
+                const isMine = msg.senderId === currentUserId;
+                const alignment = isMine ? 'justify-end' : 'justify-start';
+                const bgColor = isMine ? 'bg-primary-blue text-white' : 'bg-card-bg text-gray-800 border border-gray-200';
+                const corner = isMine ? 'rounded-br-none' : 'rounded-bl-none';
+
+                let senderLabel = isMine ? 'You' : 'Match';
+                
+                // If the contact is revealed, we can provide a slightly more descriptive label
+                if (activeProject.isContactRevealed) {
+                    const projectOwnerId = activeProject.participants.find(id => id !== currentUserId); // Assuming 2 participants
+                    if (isMine) {
+                        senderLabel = currentRole === 'owner' ? 'You (Brand Owner)' : 'You (Co-packer)';
+                    } else {
+                        senderLabel = currentRole === 'owner' ? 'Co-packer' : 'Brand Owner';
+                    }
+                }
+                
+                const messageContent = msg.text;
+
+                return `
+                    <div class="flex ${alignment}">
+                        <div class="max-w-xs sm:max-w-md p-3 rounded-xl ${bgColor} ${corner} shadow-sm">
+                            <p class="text-xs font-semibold mb-1 opacity-70">${senderLabel}</p>
+                            <p class="break-words">${messageContent}</p>
+                            <span class="block text-right text-[10px] opacity-50 mt-1">${new Date(msg.timestamp.toDate()).toLocaleTimeString()}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            DOM.chatMessages.innerHTML = html;
+            DOM.chatMessages.scrollTop = DOM.chatMessages.scrollHeight; // Auto-scroll to bottom
+        };
+
+        /**
+         * Renders the button or status for contact reveal.
+         * @param {boolean} isRevealed
+         */
+        const renderRevealStatus = (isRevealed) => {
+            const isCopacker = currentRole === 'copacker';
+            DOM.contactRevealStatus.innerHTML = '';
+
+            if (isRevealed) {
+                // Since this is a public chat, we show fake contact info for simulation
+                const contactInfo = `
+                    <div class="text-sm p-3 bg-green-100 border border-green-300 rounded-lg">
+                        <p class="font-bold text-green-700">✅ Contact Info Revealed!</p>
+                        <p class="text-xs">Email: <span id="revealed-email">brand.owner@example.com</span></p>
+                        <p class="text-xs">Phone: <span id="revealed-phone">+1 (555) 123-4567</span></p>
+                    </div>
+                `;
+                DOM.contactRevealStatus.innerHTML = contactInfo;
+            } else if (isCopacker) {
+                // Only Copackers pay to reveal the Brand Owner's info
+                DOM.contactRevealStatus.innerHTML = `
+                    <button onclick="openPaymentModal()" class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition duration-200 shadow-md active:scale-[.98] flex items-center">
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        Pay $500 to Reveal Contact
+                    </button>
+                `;
+            } else {
+                // Brand Owner sees this is pending
+                DOM.contactRevealStatus.innerHTML = `
+                    <span class="text-sm text-yellow-700 bg-yellow-100 p-2 rounded-lg font-medium">Awaiting Co-packer Payment</span>
+                `;
+            }
+        };
+
+        /**
+         * Handles sending a new message.
+         */
+        const sendMessage = async () => {
+            const messageText = DOM.chatMessageInput.value.trim();
+            if (!messageText || !activeChatId || !window.getIsAuthReady()) return;
+
+            const chatRef = getDocRef('chats', activeChatId);
+            if (!chatRef) return;
+
+            const newMessage = {
+                senderId: window.getUserId(),
+                text: messageText,
+                timestamp: window.Firestore.Timestamp.now(),
+                isRevealed: activeProject.isContactRevealed || false, // Messages are revealed if contact is revealed
+            };
+
+            try {
+                await window.Firestore.updateDoc(chatRef, {
+                    messages: window.Firestore.arrayUnion(newMessage)
+                });
+                DOM.chatMessageInput.value = '';
+            } catch (error) {
+                console.error("Error sending message:", error);
+                showModal('Error', `<p class="text-red-500">Failed to send message: ${error.message}</p>`);
+            }
+        };
+
+        // --- Payment/Reveal Logic ---
+
+        /**
+         * Opens the payment modal for the copacker.
+         */
+        window.openPaymentModal = () => {
+            const isOwner = currentRole === 'owner';
+            if (!activeChatId || isOwner) return;
+
+            const content = `
+                <p>To finalize the deal and receive the Brand Owner's contact information (email, phone, etc.), a one-time fee of <strong>$500 USD</strong> is required.</p>
+                <p class="font-bold text-red-600">This action is irreversible.</p>
+                <div class="bg-secondary-gray p-3 rounded-lg">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method (Simulated)</label>
+                    <input type="text" placeholder="Card number / Payment ID" class="w-full p-2 border border-gray-300 rounded-md">
+                </div>
+            `;
+            const footer = `
+                <button onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-150">Cancel</button>
+                <button onclick="simulatePaymentAndReveal()" class="bg-primary-blue text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-dark transition duration-200">
+                    Confirm Payment & Reveal
+                </button>
+            `;
+            showModal('Contact Reveal Payment', content, footer);
+        };
+
+        /**
+         * Simulates a successful payment and updates Firestore.
+         */
+        window.simulatePaymentAndReveal = async () => {
+            closeModal();
+            if (!activeChatId || currentRole !== 'copacker' || !window.getIsAuthReady()) return;
+
+            const chatRef = getDocRef('chats', activeChatId);
+            if (!chatRef) return;
+
+            try {
+                // 1. Update the chat document to reveal contacts
+                await window.Firestore.updateDoc(chatRef, {
+                    isContactRevealed: true,
+                });
+
+                // 2. Update the corresponding project document.
+                const projectIdToUpdate = activeProject.projectId;
+                if (projectIdToUpdate) {
+                    const projectRef = getDocRef('projects', projectIdToUpdate);
+                    if (projectRef) {
+                        await window.Firestore.updateDoc(projectRef, {
+                            isContactRevealed: true,
+                            revealedToCopackerId: window.getUserId(),
+                        });
+                    }
+                } else {
+                    console.warn("Project ID not found in active chat state. Cannot update project document status.");
+                }
+
+                showModal('Success!', '<p class="text-green-600 font-bold">Payment confirmed! The Brand Owner\'s contact information is now unlocked in the chat header.</p>');
+                // No need to call renderDashboard immediately, as the onSnapshot on the chat will handle the UI update
+
+            } catch (error) {
+                console.error("Error simulating payment/reveal:", error);
+                showModal('Error', `<p class="text-red-500">Failed to finalize reveal: ${error.message}</p>`);
+            }
+        };
+
+        // --- Project Creation (Brand Owner) ---
+
+        /**
+         * Opens the modal for brand owners to create a new project.
+         */
+        window.openNewProjectModal = () => {
+            const content = `
+                <div class="space-y-4">
+                    <div>
+                        <label for="new-project-title" class="block text-sm font-medium text-gray-700">Project Title (e.g., Turmeric Capsule Formulation)</label>
+                        <input type="text" id="new-project-title" class="w-full p-2 border border-gray-300 rounded-md mt-1" placeholder="Max 50 characters" maxlength="50">
+                    </div>
+                    <div>
+                        <label for="new-project-desc" class="block text-sm font-medium text-gray-700">Detailed Description of Needs</label>
+                        <textarea id="new-project-desc" rows="4" class="w-full p-2 border border-gray-300 rounded-md mt-1" placeholder="Describe the product, required services, volume, etc."></textarea>
+                    </div>
+                    <div>
+                        <label for="new-project-reqs" class="block text-sm font-medium text-gray-700">Specific Requirements/Certifications (e.g., GMP, Organic)</label>
+                        <input type="text" id="new-project-reqs" class="w-full p-2 border border-gray-300 rounded-md mt-1" placeholder="e.g., HACCP, cGMP certified, large volume capacity">
+                    </div>
+                    <div>
+                        <label for="new-project-budget" class="block text-sm font-medium text-gray-700">Target Budget Range</label>
+                        <input type="text" id="new-project-budget" class="w-full p-2 border border-gray-300 rounded-md mt-1" placeholder="e.g., $10k - $25k Setup">
+                    </div>
+                </div>
+            `;
+            const footer = `
+                <button onclick="closeModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-150">Cancel</button>
+                <button onclick="createNewProject()" class="bg-primary-blue text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary-dark transition duration-200">
+                    Post Project
+                </button>
+            `;
+            showModal('Create New Project Request', content, footer);
+        };
+
+        /**
+         * Adds a new project document to Firestore.
+         */
+        window.createNewProject = async () => {
+            const title = document.getElementById('new-project-title').value.trim();
+            const description = document.getElementById('new-project-desc').value.trim();
+            const requirements = document.getElementById('new-project-reqs').value.trim();
+            const budgetRange = document.getElementById('new-project-budget').value.trim();
+
+            if (!title || !description) {
+                // Using custom modal is preferred, but simple alert for quick validation
+                showModal('Validation Error', '<p class="text-red-500">Project Title and Description are required.</p>');
+                return;
+            }
+
+            closeModal();
+
+            const newProject = {
+                title,
+                description,
+                requirements,
+                budgetRange,
+                ownerId: window.getUserId(),
+                status: 'open',
+                copackerMatchIds: [],
+                isContactRevealed: false,
+                createdAt: window.Firestore.Timestamp.now(),
+            };
+
+            try {
+                const projectsCollectionRef = getDocRef('projects');
+                if (!projectsCollectionRef) throw new Error("Database reference failed for projects.");
+                
+                await window.Firestore.addDoc(projectsCollectionRef, newProject);
+                showModal('Success', `<p class="text-green-600 font-bold">Your project has been posted!</p>`);
+                renderDashboard();
+            } catch (error) {
+                console.error("Error creating project:", error);
+                showModal('Error', `<p class="text-red-500">Failed to post project: ${error.message}</p>`);
+            }
+        };
+
+        // --- Initialization and Event Listeners ---
+
+        /**
+         * Main application initialization function, called after Firebase auth is ready.
+         */
+        window.initApp = () => {
+            toggleRole('owner'); // Default to Brand Owner view
+            showView('dashboard');
+
+            DOM.roleOwnerBtn.addEventListener('click', () => toggleRole('owner'));
+            DOM.roleCopackerBtn.addEventListener('click', () => toggleRole('copacker'));
+            DOM.dashboardBtn.addEventListener('click', () => showView('dashboard'));
+            DOM.sendMessageBtn.addEventListener('click', sendMessage);
+            DOM.chatMessageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+        };
+
+        // --- Initial Data Population (For Demo/Empty DB) ---
+        // This function attempts to add initial data if the 'demo_data_initialized' flag is not set.
+
+        const populateInitialData = async () => {
+            if (!window.getIsAuthReady()) return;
+
+            const settingsRef = getDocRef('settings', 'demo_data_initialized');
+            if (!settingsRef) return; // DB not available or path error
+
+            try {
+                const docSnap = await window.Firestore.getDoc(settingsRef);
+                if (docSnap.exists() && docSnap.data().initialized) {
+                    console.log("Demo data already initialized.");
+                    return;
+                }
+
+                console.log("Initializing demo data...");
+
+                // Use the current user ID for one project and a simulated ID for another
+                const currentUserId = window.getUserId();
+                const otherUserId = 'sim-other-user-123'; 
+                const projectsCollectionRef = getDocRef('projects');
+                const chatsCollectionRef = getDocRef('chats');
+
+                if (!projectsCollectionRef || !chatsCollectionRef) throw new Error("Database reference failed.");
+
+
+                // 1. Project 1: Owned by another user (visible to current user as Copacker)
+                const project1 = {
+                    title: "Custom Probiotic Blend R&D",
+                    description: "Seeking a partner for R&D and eventual production of a custom 5-strain probiotic chewable. Small initial run (10k units) followed by monthly production.",
+                    requirements: "ISO 9001, In-house lab testing for CFU count, experience with stability testing.",
+                    budgetRange: "$5k - $10k R&D, $1.50 per unit.",
+                    ownerId: otherUserId,
+                    status: 'open',
+                    copackerMatchIds: [currentUserId], // Current user has expressed interest
+                    isContactRevealed: false,
+                    createdAt: window.Firestore.Timestamp.now(),
+                };
+                const projectRef1 = await window.Firestore.addDoc(projectsCollectionRef, project1);
+                
+                // Create Demo Chat for Project 1 (Current user is the copacker)
+                const demoChat1 = {
+                    projectId: projectRef1.id,
+                    participants: [otherUserId, currentUserId].sort(),
+                    messages: [
+                        { senderId: otherUserId, text: "I'm interested in your facility's R&D capabilities for the probiotic chewable. Do you have experience with Xylitol as a base?", timestamp: window.Firestore.Timestamp.now() },
+                        { senderId: currentUserId, text: "Yes, we specialize in chewable formulations. Our minimum order quantity (MOQ) is 10,000 units. Are you open to discussing a term sheet?", timestamp: window.Firestore.Timestamp.now() },
+                    ],
+                    isContactRevealed: false,
+                    createdAt: window.Firestore.Timestamp.now(),
+                };
+                await window.Firestore.addDoc(chatsCollectionRef, demoChat1);
+                
+                
+                // 2. Project 2: Owned by current user (visible to current user as Owner)
+                const project2 = {
+                    title: "High-Volume Omega-3 Softgel Production",
+                    description: "Seeking a reliable co-packer for a 50k unit run of EPA/DHA softgels monthly. Must handle bottling, labeling, and lot coding. Looking for long-term partnership.",
+                    requirements: "HACCP/cGMP certified, FDA registered, Kosher/Halal certification a plus.",
+                    budgetRange: "$15k - $30k setup fee, competitive per-unit cost.",
+                    ownerId: currentUserId,
+                    status: 'open',
+                    copackerMatchIds: [otherUserId], // Other user has expressed interest
+                    isContactRevealed: false,
+                    createdAt: window.Firestore.Timestamp.now(),
+                };
+                const projectRef2 = await window.Firestore.addDoc(projectsCollectionRef, project2);
+
+                // Create Demo Chat for Project 2 (Current user is the owner)
+                const demoChat2 = {
+                    projectId: projectRef2.id,
+                    participants: [currentUserId, otherUserId].sort(),
+                    messages: [
+                        { senderId: otherUserId, text: "I represent a large co-packer interested in your Omega-3 project. We meet all certifications. Can we discuss pricing?", timestamp: window.Firestore.Timestamp.now() },
+                        { senderId: currentUserId, text: "That's great. We are looking for a unit price below $0.50. What is your lead time for a 50k unit run?", timestamp: window.Firestore.Timestamp.now() },
+                    ],
+                    isContactRevealed: false,
+                    createdAt: window.Firestore.Timestamp.now(),
+                };
+                await window.Firestore.addDoc(chatsCollectionRef, demoChat2);
+
+
+                // 3. Set initialization flag
+                await window.Firestore.setDoc(settingsRef, { initialized: true });
+
+            } catch (error) {
+                console.warn("Could not populate demo data:", error);
+            }
+        };
+
+        // Call initial data population once auth is ready
+        if (window.getIsAuthReady()) {
+            populateInitialData();
+        } else {
+            // Wait for initApp (which is called by onAuthStateChanged)
+            const originalInitApp = window.initApp;
+            window.initApp = () => {
+                populateInitialData();
+                originalInitApp();
+            };
+        }
+    </script>
 </body>
 </html>
-

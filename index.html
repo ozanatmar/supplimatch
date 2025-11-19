@@ -462,7 +462,7 @@
          * @param {string} projectId
          * @param {boolean} [isContinue=false] - If true, assumes a chat already exists and skips the update.
          */
-        window.expressInterest = async (projectId, isContinue = false) => {
+        window.expressInterest = async (projectId, isContinue = false, copackerOverrideId = null) => {
             if (!window.getIsAuthReady()) return;
 
             try {
@@ -472,8 +472,15 @@
 
                 if (!projectData) throw new Error("Project not found.");
 
-                const copackerId = window.getUserId();
                 const ownerId = projectData.ownerId;
+                const copackerId = copackerOverrideId || window.getUserId();
+
+                if (copackerId === ownerId) {
+                    console.error("A valid copacker ID is required to start the chat.");
+                    showModal('Error', '<p class="text-red-500">Unable to start the chat because the co-packer could not be identified.</p>');
+                    return;
+                }
+
                 const participants = [copackerId, ownerId].sort();
 
                 const chatsRef = getDocRef('chats');
@@ -575,7 +582,7 @@
             closeModal();
             // Start the full flow to ensure chat is created if missing, then jump to chat view
             // Since the Brand Owner is initiating, they are guaranteed to be the 'owner' role.
-            await window.expressInterest(projectId, true);
+            await window.expressInterest(projectId, true, otherParticipantId);
         };
 
         /**
@@ -872,7 +879,11 @@
         /**
          * Main application initialization function, called after Firebase auth is ready.
          */
+        let hasInitializedApp = false;
+
         window.initApp = () => {
+            if (hasInitializedApp) return;
+            hasInitializedApp = true;
             toggleRole('owner'); // Default to Brand Owner view
             showView('dashboard');
 
@@ -884,6 +895,10 @@
                 if (e.key === 'Enter') sendMessage();
             });
         };
+
+        if (window.getIsAuthReady()) {
+            window.initApp();
+        }
 
         // --- Initial Data Population (For Demo/Empty DB) ---
         // This function attempts to add initial data if the 'demo_data_initialized' flag is not set.

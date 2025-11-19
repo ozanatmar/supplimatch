@@ -461,6 +461,7 @@
          * (Co-packer) Expresses interest in a project, which starts or continues a chat.
          * @param {string} projectId
          * @param {boolean} [isContinue=false] - If true, assumes a chat already exists and skips the update.
+         * @param {string|null} [copackerOverrideId=null] - Optional copacker ID used when acting on behalf of another participant.
          */
         window.expressInterest = async (projectId, isContinue = false, copackerOverrideId = null) => {
             if (!window.getIsAuthReady()) return;
@@ -473,15 +474,21 @@
                 if (!projectData) throw new Error("Project not found.");
 
                 const ownerId = projectData.ownerId;
-                const copackerId = copackerOverrideId || window.getUserId();
+                const copackerId = copackerOverrideId ?? window.getUserId();
 
-                if (copackerId === ownerId) {
-                    console.error("A valid copacker ID is required to start the chat.");
-                    showModal('Error', '<p class="text-red-500">Unable to start the chat because the co-packer could not be identified.</p>');
+                if (!copackerId || !ownerId) {
+                    console.error('Missing participant IDs', { copackerId, ownerId });
+                    showModal('Error', '<p class="text-red-500">Unable to start the chat because the co-packer or project owner could not be identified.</p>');
                     return;
                 }
 
-                const participants = [copackerId, ownerId].sort();
+                if (copackerId === ownerId) {
+                    console.error("A valid copacker ID is required to start the chat.");
+                    showModal('Error', '<p class="text-red-500">Unable to start the chat because the same account cannot represent both participants.</p>');
+                    return;
+                }
+
+                const participants = [copackerId, ownerId].sort((a, b) => a.localeCompare(b));
 
                 const chatsRef = getDocRef('chats');
                 if (!chatsRef) throw new Error("Database reference failed for chats.");
@@ -580,6 +587,11 @@
          */
         window.startChatByParticipants = async (projectId, otherParticipantId) => {
             closeModal();
+            if (!otherParticipantId) {
+                console.error('Cannot start chat without a copacker ID override.');
+                showModal('Error', '<p class="text-red-500">Unable to open this chat because the co-packer could not be identified.</p>');
+                return;
+            }
             // Start the full flow to ensure chat is created if missing, then jump to chat view
             // Since the Brand Owner is initiating, they are guaranteed to be the 'owner' role.
             await window.expressInterest(projectId, true, otherParticipantId);
@@ -879,7 +891,11 @@
         /**
          * Main application initialization function, called after Firebase auth is ready.
          */
+        let hasInitializedApp = false;
+
         window.initApp = () => {
+            if (hasInitializedApp) return;
+            hasInitializedApp = true;
             toggleRole('owner'); // Default to Brand Owner view
             showView('dashboard');
 
@@ -891,6 +907,10 @@
                 if (e.key === 'Enter') sendMessage();
             });
         };
+
+        if (window.getIsAuthReady()) {
+            window.initApp();
+        }
 
         // --- Initial Data Population (For Demo/Empty DB) ---
         // This function attempts to add initial data if the 'demo_data_initialized' flag is not set.

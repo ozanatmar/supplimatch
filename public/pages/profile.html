@@ -1,0 +1,119 @@
+<h2>Profile</h2>
+
+<label for="profileName">Contact Name *</label><br />
+<input id="profileName" required pattern="^[A-Za-zÀ-ž\s]+$" /><br /><br />
+
+<label for="profileCompany">Company Name *</label><br />
+<input
+  id="profileCompany"
+  required
+  pattern="^[A-Za-z0-9\s\.\-]+$"
+/><br /><br />
+
+<label for="profileEmail">Email *</label><br />
+<input id="profileEmail" disabled style="background: #f0f0f0" /><br /><br />
+
+<label for="profileCountry">Country *</label><br />
+<div style="position: relative; width: 240px">
+  <input
+    id="countrySearch"
+    placeholder="Type to search..."
+    onclick="showCountryList()"
+    oninput="filterCountryList()"
+    autocomplete="off"
+    style="width: 100%"
+  />
+
+  <div
+    id="countryDropdown"
+    style="
+      position: absolute;
+      top: 32px;
+      width: 100%;
+      max-height: 180px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      background: white;
+      display: none;
+      z-index: 50;
+    "
+  ></div>
+</div>
+
+<input id="profileCountry" type="hidden" required /><br /><br />
+
+<label for="profileState">State</label><br />
+<input id="profileState" pattern="^[A-Za-z0-9\s]+$" /><br /><br />
+
+<label for="profileTown">Town *</label><br />
+<input id="profileTown" required pattern="^[A-Za-z0-9\s]+$" /><br /><br />
+
+<label for="profileZIPCode">ZIP Code *</label><br />
+<input
+  id="profileZIPCode"
+  required
+  pattern="^[A-Za-z0-9\-\.\,\s]+$"
+/><br /><br />
+
+<label for="profileAddress">Street Address</label><br />
+<input id="profileAddress" pattern="^[A-Za-z0-9\-\.\,\s]+$" /><br /><br />
+
+<label for="profilePhone">Phone (+country code)</label><br />
+<input id="profilePhone" pattern="^\+[0-9\s\-\(\)]{7,}$" /><br /><br />
+
+<h3>Roles</h3>
+
+<label for="roleBrand"
+  ><input type="checkbox" id="roleBrand" /> I am a Brand Owner</label
+><br />
+<label for="roleCopacker"
+  ><input type="checkbox" id="roleCopacker" /> I am a Copacker</label
+><br /><br />
+
+<div id="copackerSettings" style="display: none; margin-top: 20px">
+  <h3>Copacker Settings</h3>
+
+  <label>Supplement Forms *</label>
+  <div class="multiselect-group" id="formsGroup">
+    <div class="toggle-btn" data-value="Capsules">Capsules</div>
+    <div class="toggle-btn" data-value="Tablets">Tablets</div>
+    <div class="toggle-btn" data-value="Powders">Powders</div>
+    <div class="toggle-btn" data-value="Liquids">Liquids</div>
+    <div class="toggle-btn" data-value="Softgels">Softgels</div>
+    <div class="toggle-btn" data-value="Gummies">Gummies</div>
+    <div class="toggle-btn" data-value="Chewables">Chewables</div>
+    <div class="toggle-btn" data-value="Oral sprays">Oral sprays</div>
+    <div class="toggle-btn" data-value="Effervescent tablets">
+      Effervescent tablets
+    </div>
+  </div>
+
+  <br />
+
+  <label>Packaging Types *</label>
+  <div class="multiselect-group" id="packagesGroup">
+    <div class="toggle-btn" data-value="Blisters">Blisters</div>
+    <div class="toggle-btn" data-value="Bulk">Bulk</div>
+    <div class="toggle-btn" data-value="Pouches">Pouches</div>
+    <div class="toggle-btn" data-value="Sachets">Sachets</div>
+    <div class="toggle-btn" data-value="Stick Packs">Stick Packs</div>
+    <div class="toggle-btn" data-value="Spray bottle">Spray bottle</div>
+    <div class="toggle-btn" data-value="Jars (glass)">Jars (glass)</div>
+    <div class="toggle-btn" data-value="Jars (plastic)">Jars (plastic)</div>
+    <div class="toggle-btn" data-value="Dropper bottle">Dropper bottle</div>
+    <div class="toggle-btn" data-value="Single-dose tubes">
+      Single-dose tubes
+    </div>
+    <div class="toggle-btn" data-value="Ampoules">Ampoules</div>
+  </div>
+
+  <br />
+
+  <label>Minimum Order Quantity</label><br />
+  <input id="copackerMOQ" type="number" min="1" /><br /><br />
+</div>
+
+<button onclick="saveProfile()">Save Profile</button>
+
+<p id="profileStatus" style="color: green"></p>
+<p id="profileError" style="color: red"></p>

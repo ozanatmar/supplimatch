@@ -268,6 +268,16 @@ export async function saveRequest() {
 
     console.log("Request created via Cloud Function:", result.data);
 
+    const resp = result.data;
+
+    if (resp.active === false) {
+      alert(
+        "Your request was created but not published.\nReason: " + resp.reason
+      );
+    } else {
+      alert("Your request has been published successfully.");
+    }
+
     await loadBrandRequests();
     closeRequestPopup();
   } catch (e) {

@@ -81,12 +81,4 @@ window.toggle = toggle;
 // ========= DOM INITIALIZATION =========
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("SuppliMatch initialized");
-
-  try {
-    const callable = httpsCallable(functions, "testHello");
-    const result = await callable(); // no args
-    console.log("testHello result:", result.data);
-  } catch (err) {
-    console.error("Error calling testHello:", err);
-  }
 });

@@ -46,6 +46,7 @@ export async function dashboardNavigate(section) {
 
     if (section === "copacker") {
       await loadSubpage("dash-copacker", "/pages/copacker.html");
+      await renderCopackerDashboard(); // now works
     }
 
     if (section === "brand") {
@@ -58,10 +59,6 @@ export async function dashboardNavigate(section) {
 
   // Show selected subpage
   container.style.display = "block";
-
-  if (section === "copacker") {
-    await renderCopackerDashboard();
-  }
 
   return true;
 }

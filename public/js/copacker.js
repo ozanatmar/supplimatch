@@ -75,47 +75,8 @@ export async function renderCopackerDashboard() {
       <p><strong>MOQ:</strong> ${r.moq || "-"}</p>
       <p><strong>Location:</strong> ${r.locationLabel || "-"}</p>
       <p><strong>Status:</strong> ${r.active ? "Active" : "Inactive"}</p>
-
-      <button class="details-btn"
-              onclick="openRequestDetails('${r.id}')">Details</button>
     `;
 
     container.appendChild(card);
   });
 }
-
-// ---------------------------------------------------------
-// DETAILS MODAL
-// ---------------------------------------------------------
-
-export async function openRequestDetails(id) {
-  console.log("[Copacker] Opening request details:", id);
-
-  const snap = await getDoc(doc(db, "requests", id));
-  if (!snap.exists()) {
-    console.error("[Copacker] Request not found:", id);
-    return;
-  }
-
-  const r = snap.data();
-
-  const html = `
-    <h2>${r.product}</h2>
-    <p><strong>Description:</strong> ${r.description || "None"}</p>
-    <p><strong>Forms:</strong> ${r.forms?.join(", ") || "-"}</p>
-    <p><strong>Packaging:</strong> ${r.packaging?.join(", ") || "-"}</p>
-    <p><strong>MOQ:</strong> ${r.moq || "-"}</p>
-    <p><strong>Location:</strong> ${r.locationLabel || "-"}</p>
-    <p><strong>Status:</strong> ${r.active ? "Active" : "Inactive"}</p>
-    <p><strong>Created:</strong> ${
-      r.createdAt ? new Date(r.createdAt.toMillis()).toLocaleString() : "-"
-    }</p>
-
-    <button onclick="closeModal('requestDetailsModal')">Close</button>
-  `;
-
-  document.getElementById("requestDetailsContent").innerHTML = html;
-  openModal("requestDetailsModal");
-}
-
-window.openRequestDetails = openRequestDetails;

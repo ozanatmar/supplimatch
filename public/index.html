@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>SuppliMatch SPA</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+
+  <body>
+    <!-- HEADER -->
+    <header>
+      <div id="headerLoggedOut" style="display: none; gap: 10px">
+        <button onclick="navigate('home')">Home</button>
+        <input id="loginEmail" type="email" placeholder="Email" />
+        <input id="loginPassword" type="password" placeholder="Password" />
+        <button onclick="login()">Login</button>
+        <button onclick="navigate('signup')">Sign up</button>
+      </div>
+
+      <div id="headerLoggedIn" style="display: none; gap: 10px">
+        <div id="headerCredits" style="color: black; font-weight: bold"></div>
+        <button onclick="navigate('home')">Home</button>
+        <button onclick="navigate('dashboard')">Dashboard</button>
+        <button onclick="logout()">Logout</button>
+      </div>
+      Version: 1.0
+    </header>
+
+    <div id="page-home" class="page">
+      <h1>Landing Page</h1>
+      <p>Welcome. This is visible to everyone.</p>
+    </div>
+
+    <div id="page-signup" class="page">
+      <h1>Create Account</h1>
+
+      <input id="signupEmail" type="email" placeholder="Email" /><br /><br />
+      <input
+        id="signupPassword"
+        type="password"
+        placeholder="Password"
+      /><br /><br />
+
+      <button onclick="signup()">Create account</button><br /><br />
+      <button onclick="navigate('home')">Back to home</button>
+    </div>
+
+    <div id="page-dashboard" class="page">
+      <nav id="dashboardNav" style="margin-bottom: 20px">
+        <button onclick="dashboardNavigate('main')">Dashboard</button>
+        <button onclick="dashboardNavigate('profile')">Profile</button>
+
+        <button
+          id="btnBrand"
+          onclick="dashboardNavigate('brand')"
+          style="display: none"
+        >
+          Brand Owner View
+        </button>
+        <button
+          id="btnCopacker"
+          onclick="dashboardNavigate('copacker')"
+          style="display: none"
+        >
+          Copacker View
+        </button>
+      </nav>
+
+      <div id="dash-main" class="dash-subpage"></div>
+      <div id="dash-profile" class="dash-subpage"></div>
+      <div id="dash-brand" class="dash-subpage"></div>
+      <div id="dash-copacker" class="dash-subpage"></div>
+    </div>
+
+    <script type="module" src="/js/index.js"></script>
+  </body>
+</html>

@@ -369,28 +369,33 @@
     </div>
   </div>
   <script>
-    const openBtn = document.getElementById('openCopackerModal');
-    const modal = document.getElementById('copackerModal');
-    const closeBtn = document.getElementById('closeModal');
-  
-    function openModal() {
-      modal.classList.add('active');
-    }
-  
-    function closeModal() {
-      modal.classList.remove('active');
-    }
-  
-    openBtn.addEventListener('click', openModal);
-    closeBtn.addEventListener('click', closeModal);
-  
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-  
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
+    document.addEventListener('DOMContentLoaded', () => {
+      const openBtn = document.getElementById('openCopackerModal');
+      const modal = document.getElementById('copackerModal');
+      const closeBtn = document.getElementById('closeModal');
+
+      if (!openBtn || !modal || !closeBtn) return;
+
+      function openModal() {
+        modal.classList.add('active');
+      }
+
+      function closeModal() {
+        modal.classList.remove('active');
+      }
+
+      openBtn.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+      });
     });
   </script>
+
 </body>
 </html>

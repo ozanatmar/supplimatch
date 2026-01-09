@@ -318,6 +318,29 @@
       font-size: 0.9rem;
       line-height: 1.4;
     }
+
+    .pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+  
+    .pill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.15s ease, border 0.15s ease;
+    }
+  
+    .pill.active {
+      background: rgba(34,197,94,0.2);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
   </style>
 </head>
 
@@ -609,6 +632,48 @@
           alert('Something went wrong. Please try again.');
         }
       });
+
+        // Pill multi-select handling
+  document.querySelectorAll('.pill-group').forEach(group => {
+    group.addEventListener('click', e => {
+      if (!e.target.classList.contains('pill')) return;
+      e.target.classList.toggle('active');
+    });
+  });
+
+  // Extend form submit payload
+  const form = document.getElementById('copackerForm');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    document.querySelectorAll('.pill-group').forEach(group => {
+      const name = group.dataset.name;
+      data[name] = Array.from(group.querySelectorAll('.pill.active'))
+        .map(p => p.textContent);
+    });
+
+    try {
+      const res = await fetch(
+        'https://hook.eu2.make.com/b9vc54muqd8898ph4187nrdovte2tiod',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        }
+      );
+
+      if (!res.ok) throw new Error();
+
+      form.style.display = 'none';
+      document.getElementById('copackerSuccess').style.display = 'block';
+    } catch {
+      alert('Submission failed. Please try again.');
+    }
+  });
+      
     });
   </script>
 

@@ -341,6 +341,13 @@
       border-color: var(--accent);
       color: var(--accent);
     }
+
+    .field-hint {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
   </style>
 </head>
 
@@ -443,7 +450,10 @@
         
               <!-- NAME -->
               <div class="form-group">
-                <label>Name</label>
+                <label>
+                  Name
+                  <span class="field-hint">(letters and spaces only, max 20)</span>
+                </label>
                 <input
                   type="text"
                   name="name"

@@ -273,6 +273,51 @@
       border-radius: 12px;
       font-size: 0.9rem;
     }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+  
+    .form-group label {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+  
+    .form-group input,
+    .form-group select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+  
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+  
+    .full-width {
+      width: 100%;
+      margin-top: 8px;
+    }
+  
+    .success-message {
+      display: none;
+      margin-top: 20px;
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.25);
+      color: var(--accent);
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
   </style>
 </head>
 
@@ -350,21 +395,49 @@
 
       <!-- COPACKER MODAL -->
       <div class="modal-overlay" id="copackerModal">
-        <div class="modal" role="dialog" aria-modal="true">
-          <button class="modal-close" id="closeModal">×</button>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="copackerTitle">
+          <button class="modal-close" id="closeModal" aria-label="Close">×</button>
       
-          <h2>Register as a co-packer</h2>
+          <h2 id="copackerTitle">Register as a co-packer</h2>
           <p>
-            Co-packers can register their manufacturing capabilities to receive
-            matching supplement requests by email.
+            Leave your details to receive matching supplement requests by email.
           </p>
       
-          <div class="modal-note">
-            Registration is free and email-verified.<br />
-            This feature is opening gradually during early access.
+          <form id="copackerForm">
+            <div class="form-group">
+              <label>Email address</label>
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="you@company.com"
+              />
+            </div>
+      
+            <div class="form-group">
+              <label>Main supplement form</label>
+              <select name="form" required>
+                <option value="">Select one</option>
+                <option value="Capsules">Capsules</option>
+                <option value="Tablets">Tablets</option>
+                <option value="Powders">Powders</option>
+                <option value="Liquids">Liquids</option>
+                <option value="Gummies">Gummies</option>
+              </select>
+            </div>
+      
+            <button type="submit" class="btn btn-primary full-width">
+              Submit
+            </button>
+          </form>
+      
+          <div class="success-message" id="copackerSuccess">
+            ✅ Thanks! We’ve received your registration.<br />
+            You’ll hear from us when matching requests are available.
           </div>
         </div>
       </div>
+
 
     </div>
   </div>
@@ -373,29 +446,55 @@
       const openBtn = document.getElementById('openCopackerModal');
       const modal = document.getElementById('copackerModal');
       const closeBtn = document.getElementById('closeModal');
-
-      if (!openBtn || !modal || !closeBtn) return;
-
+      const form = document.getElementById('copackerForm');
+      const successBox = document.getElementById('copackerSuccess');
+  
       function openModal() {
         modal.classList.add('active');
       }
-
+  
       function closeModal() {
         modal.classList.remove('active');
       }
-
+  
       openBtn.addEventListener('click', openModal);
       closeBtn.addEventListener('click', closeModal);
-
+  
       modal.addEventListener('click', (e) => {
         if (e.target === modal) closeModal();
       });
-
+  
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeModal();
       });
+  
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+  
+        const formData = new FormData(form);
+        const payload = Object.fromEntries(formData.entries());
+  
+        try {
+          const res = await fetch(
+            'https://hook.eu2.make.com/b9vc54muqd8898ph4187nrdovte2tiod',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            }
+          );
+  
+          if (!res.ok) throw new Error('Request failed');
+  
+          form.style.display = 'none';
+          successBox.style.display = 'block';
+        } catch (err) {
+          alert('Something went wrong. Please try again.');
+        }
+      });
     });
   </script>
+
 
 </body>
 </html>

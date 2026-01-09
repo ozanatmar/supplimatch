@@ -450,16 +450,13 @@
         
               <!-- NAME -->
               <div class="form-group">
-                <label>
-                  Name
-                  <span class="field-hint">(letters and spaces only, max 20)</span>
-                </label>
+                <label>Name</label>
                 <input
                   type="text"
                   name="name"
                   required
                   maxlength="20"
-                  pattern="[A-Za-z ]+"
+                  data-allowed="letters-space"
                   placeholder="John Doe"
                 />
               </div>
@@ -709,6 +706,23 @@
           submitBtn.textContent = 'Submit';
         }
       });
+
+      // Input character filtering
+      document.querySelectorAll('input[data-allowed]').forEach(input => {
+        const rules = {
+          'letters-space': /^[A-Za-z ]*$/,
+          'alphanum-space': /^[A-Za-z0-9 ]*$/
+        };
+      
+        const regex = rules[input.dataset.allowed];
+      
+        input.addEventListener('input', () => {
+          if (!regex.test(input.value)) {
+            input.value = input.value.replace(/[^A-Za-z0-9 ]/g, '');
+          }
+        });
+      });
+
     });
   </script>
 

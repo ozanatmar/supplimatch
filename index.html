@@ -393,51 +393,166 @@
         </p>
       </div>
 
-      <!-- COPACKER MODAL -->
-      <div class="modal-overlay" id="copackerModal">
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="copackerTitle">
-          <button class="modal-close" id="closeModal" aria-label="Close">×</button>
       
-          <h2 id="copackerTitle">Register as a co-packer</h2>
-          <p>
-            Leave your details to receive matching supplement requests by email.
-          </p>
       
-          <form id="copackerForm">
-            <div class="form-group">
-              <label>Email address</label>
-              <input
-                type="email"
-                name="email"
-                required
-                placeholder="you@company.com"
-                autocomplete="email"
-              />
+      
+     
+      
+      
+        <!-- COPACKER MODAL -->
+        <div class="modal-overlay" id="copackerModal">
+          <div class="modal" role="dialog" aria-modal="true" aria-labelledby="copackerTitle">
+            <button class="modal-close" id="closeModal" aria-label="Close">×</button>
+        
+            <h2 id="copackerTitle">Register as a co-packer</h2>
+            <p>
+              Leave your details to receive matching supplement requests by email.
+            </p>
+        
+            <form id="copackerForm">
+        
+              <!-- NAME -->
+              <div class="form-group">
+                <label>Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  maxlength="20"
+                  pattern="[A-Za-z ]+"
+                  placeholder="John Doe"
+                />
+              </div>
+        
+              <!-- COMPANY NAME -->
+              <div class="form-group">
+                <label>Company name</label>
+                <input
+                  type="text"
+                  name="company"
+                  required
+                  maxlength="20"
+                  pattern="[A-Za-z ]+"
+                  placeholder="Acme Pharma"
+                />
+              </div>
+        
+              <!-- EMAIL -->
+              <div class="form-group">
+                <label>Email address</label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  placeholder="you@company.com"
+                  pattern="^[^@]+@[^@]+\.[^@]+$"
+                />
+              </div>
+        
+              <!-- COUNTRY -->
+              <div class="form-group">
+                <label>Country</label>
+                <select name="country" required>
+                  <option value="">Select country</option>
+                  <option value="Bulgaria">Bulgaria</option>
+                  <option value="Germany">Germany</option>
+                  <option value="Italy">Italy</option>
+                  <option value="Turkey">Turkey</option>
+                  <option value="Netherlands">Netherlands</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+        
+              <!-- STATE -->
+              <div class="form-group">
+                <label>State / Region (optional)</label>
+                <input
+                  type="text"
+                  name="state"
+                  maxlength="20"
+                  pattern="[A-Za-z0-9 ]+"
+                  placeholder="Optional"
+                />
+              </div>
+        
+              <!-- TOWN -->
+              <div class="form-group">
+                <label>Town</label>
+                <input
+                  type="text"
+                  name="town"
+                  required
+                  maxlength="20"
+                  pattern="[A-Za-z0-9 ]+"
+                  placeholder="Varna"
+                />
+              </div>
+        
+              <!-- ZIP -->
+              <div class="form-group">
+                <label>ZIP code</label>
+                <input
+                  type="text"
+                  name="zip"
+                  required
+                  maxlength="10"
+                  pattern="[A-Za-z0-9 ]+"
+                  placeholder="9000"
+                />
+              </div>
+        
+              <!-- STREET -->
+              <div class="form-group">
+                <label>Street address</label>
+                <input
+                  type="text"
+                  name="street"
+                  required
+                  maxlength="50"
+                  pattern="[A-Za-z0-9 ]+"
+                  placeholder="Main street 12"
+                />
+              </div>
+        
+              <!-- SUPPLEMENT FORMS -->
+              <div class="form-group">
+                <label>Supplement forms</label>
+                <div class="pill-group" data-name="supplement_forms">
+                  <button type="button" class="pill">Capsules</button>
+                  <button type="button" class="pill">Tablets</button>
+                  <button type="button" class="pill">Powders</button>
+                  <button type="button" class="pill">Liquids</button>
+                  <button type="button" class="pill">Gummies</button>
+                </div>
+              </div>
+        
+              <!-- PACKAGING -->
+              <div class="form-group">
+                <label>Packaging available</label>
+                <div class="pill-group" data-name="packaging">
+                  <button type="button" class="pill">Bottles</button>
+                  <button type="button" class="pill">Jars</button>
+                  <button type="button" class="pill">Blisters</button>
+                  <button type="button" class="pill">Sachets</button>
+                  <button type="button" class="pill">Bulk</button>
+                </div>
+              </div>
+        
+              <button type="submit" class="btn btn-primary full-width" id="copackerSubmit">
+                Submit
+              </button>
+            </form>
+        
+            <div class="success-message" id="copackerSuccess" aria-live="polite">
+              ✅ <strong>Registration received.</strong><br />
+              You’ll be notified when matching requests are available.
             </div>
-      
-            <div class="form-group">
-              <label>Main supplement form</label>
-              <select name="form" required>
-                <option value="">Select one</option>
-                <option value="Capsules">Capsules</option>
-                <option value="Tablets">Tablets</option>
-                <option value="Powders">Powders</option>
-                <option value="Liquids">Liquids</option>
-                <option value="Gummies">Gummies</option>
-              </select>
-            </div>
-      
-            <button type="submit" class="btn btn-primary full-width" id="copackerSubmit">
-              Submit
-            </button>
-          </form>
-      
-          <div class="success-message" id="copackerSuccess" aria-live="polite">
-            ✅ <strong>Registration received.</strong><br />
-            You’ll be notified when matching requests are available.
           </div>
         </div>
-      </div>
+
+
+
+      
 
 
 

@@ -192,6 +192,88 @@
       }
     }
   </style>
+  <style>
+    /* === MODAL OVERLAY === */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.65);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      z-index: 1000;
+    }
+  
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  
+    /* === MODAL CARD === */
+    .modal {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), transparent);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 480px;
+      padding: 28px 28px 32px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+      transform: scale(0.96) translateY(10px);
+      transition: transform 0.25s ease;
+      position: relative;
+    }
+  
+    .modal-overlay.active .modal {
+      transform: scale(1) translateY(0);
+    }
+  
+    /* === CLOSE BUTTON === */
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+  
+    .modal-close:hover {
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+    }
+  
+    /* === MODAL CONTENT === */
+    .modal h2 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+    }
+  
+    .modal p {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+  
+    .modal-note {
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.25);
+      color: var(--accent);
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 
 <body>
@@ -245,7 +327,7 @@
           <button class="btn btn-primary">
             Create a request
           </button>
-          <button class="btn btn-secondary">
+          <button class="btn btn-secondary" id="openCopackerModal">
             Register as co-packer
           </button>
         </div>
@@ -270,7 +352,47 @@
   </div>
 
   <script>
-    // JS here
+    <script>
+      const openBtn = document.getElementById('openCopackerModal');
+      const modal = document.getElementById('copackerModal');
+      const closeBtn = document.getElementById('closeModal');
+    
+      function openModal() {
+        modal.classList.add('active');
+      }
+    
+      function closeModal() {
+        modal.classList.remove('active');
+      }
+    
+      openBtn.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+    
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+    
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+      });
+    </script>
   </script>
 </body>
+  <!-- COPACKER MODAL -->
+  <div class="modal-overlay" id="copackerModal">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="modal-close" id="closeModal">×</button>
+  
+      <h2>Register as a co-packer</h2>
+      <p>
+        Co-packers can register their manufacturing capabilities to receive
+        matching supplement requests by email.
+      </p>
+  
+      <div class="modal-note">
+        Registration is free and email-verified.<br />
+        This feature is opening gradually during early access.
+      </div>
+    </div>
+  </div>
 </html>

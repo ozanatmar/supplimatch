@@ -411,6 +411,7 @@
                 name="email"
                 required
                 placeholder="you@company.com"
+                autocomplete="email"
               />
             </div>
       
@@ -426,17 +427,18 @@
               </select>
             </div>
       
-            <button type="submit" class="btn btn-primary full-width">
+            <button type="submit" class="btn btn-primary full-width" id="copackerSubmit">
               Submit
             </button>
           </form>
       
-          <div class="success-message" id="copackerSuccess">
-            ✅ Thanks! We’ve received your registration.<br />
-            You’ll hear from us when matching requests are available.
+          <div class="success-message" id="copackerSuccess" aria-live="polite">
+            ✅ <strong>Registration received.</strong><br />
+            You’ll be notified when matching requests are available.
           </div>
         </div>
       </div>
+
 
 
     </div>

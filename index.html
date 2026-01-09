@@ -718,9 +718,17 @@
       
         input.addEventListener('input', () => {
           if (!regex.test(input.value)) {
-            input.value = input.value.replace(/[^A-Za-z0-9 ]/g, '');
+            if (input.dataset.allowed === 'letters-space') {
+              input.value = input.value.replace(/[^A-Za-z ]/g, '');
+            } else if (input.dataset.allowed === 'alphanum-space') {
+              input.value = input.value.replace(/[^A-Za-z0-9 ]/g, '');
+            }
           }
         });
+
+
+
+        
       });
 
     });

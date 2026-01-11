@@ -2,12 +2,14 @@ import { COUNTRIES } from "./countries.js";
 
 document.addEventListener('DOMContentLoaded', () => {  
   const countrySelect = document.getElementById("countrySelect");
-  COUNTRIES.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c;
-    opt.textContent = c;
-    countrySelect.appendChild(opt);
-  });
+  if(countryselect) {
+    COUNTRIES.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      countrySelect.appendChild(opt);
+    });
+  }
   
   const openBtn = document.getElementById('openCopackerModal');
   const modal = document.getElementById('copackerModal');

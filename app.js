@@ -2,7 +2,7 @@ import { COUNTRIES } from "./countries.js";
 
 document.addEventListener('DOMContentLoaded', () => {  
   const countrySelect = document.getElementById("countrySelect");
-  if(countryselect) {
+  if(countrySelect) {
     COUNTRIES.forEach(c => {
       const opt = document.createElement("option");
       opt.value = c;

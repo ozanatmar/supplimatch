@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
-  import { COUNTRIES } from "./countries.js";
-  
+import { COUNTRIES } from "./countries.js";
+
+document.addEventListener('DOMContentLoaded', () => {  
   const countrySelect = document.getElementById("countrySelect");
   COUNTRIES.forEach(c => {
     const opt = document.createElement("option");

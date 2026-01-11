@@ -1,4 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+  import { COUNTRIES } from "./countries.js";
+  
+  const countrySelect = document.getElementById("countrySelect");
+  COUNTRIES.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    countrySelect.appendChild(opt);
+  });
+  
   const openBtn = document.getElementById('openCopackerModal');
   const modal = document.getElementById('copackerModal');
   const closeBtn = document.getElementById('closeModal');

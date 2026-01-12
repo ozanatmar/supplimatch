@@ -17,7 +17,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('copackerForm');
   const successBox = document.getElementById('copackerSuccess');
   const submitBtn = document.getElementById('copackerSubmit');
+  const openRequestBtn = document.getElementById('openRequestModal');
+  const requestModal = document.getElementById('requestModal');
+  const closeRequestBtn = document.getElementById('closeRequestModal');
+  const requestForm = document.getElementById('requestForm');
+  const requestSuccessBox = document.getElementById('requestSuccess');
+  const requestSubmitBtn = document.getElementById('requestSubmit');
+  const REQUEST_WEBHOOK_URL = 'https://hook.eu2.make.com/8rgorhtlpbxbozuy39ap8ulnfusino4e';
+  const COPACKER_REGISTER_WEBHOOK_URL = 'https://hook.eu2.make.com/b9vc54muqd8898ph4187nrdovte2tiod';
 
+  // create request modal
+  function resetRequestModal() {
+    requestForm.style.display = '';
+    requestSuccessBox.style.display = 'none';
+    requestForm.reset();
+    requestSubmitBtn.disabled = false;
+    requestSubmitBtn.textContent = 'Submit request';
+  }
+  
+  function openRequestModal() {
+    resetRequestModal();
+    requestModal.classList.add('active');
+  }
+  
+  function closeRequestModal() {
+    requestModal.classList.remove('active');
+  }
+
+  openRequestBtn?.addEventListener('click', openRequestModal);
+  closeRequestBtn?.addEventListener('click', closeRequestModal);
+  
+  requestModal?.addEventListener('click', (e) => {
+    if (e.target === requestModal) closeRequestModal();
+  });
+
+  // register copacker modal
   function resetModal() {
     // show form, hide success
     form.style.display = '';
@@ -52,7 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape') {
+      closeModal();
+      closeRequestModal();
+    }
   });
 
   // Pill multi-select handling
@@ -63,7 +100,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Submit (single handler)
+  // submit create request form
+  requestForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+  
+    const payload = Object.fromEntries(new FormData(requestForm).entries());
+  
+    requestSubmitBtn.disabled = true;
+    requestSubmitBtn.textContent = 'Submitting...';
+  
+    try {
+      const res = await fetch(REQUEST_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!res.ok) throw new Error('Request failed');
+  
+      requestForm.style.display = 'none';
+      requestSuccessBox.style.display = 'block';
+    } catch {
+      alert('Submission failed. Please try again.');
+      requestSubmitBtn.disabled = false;
+      requestSubmitBtn.textContent = 'Submit request';
+    }
+  });
+
+  // Submit register copacker form
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -81,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.textContent = 'Submitting...';
 
     try {
-      const res = await fetch('https://hook.eu2.make.com/b9vc54muqd8898ph4187nrdovte2tiod', {
+      const res = await fetch(COPACKER_REGISTER_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

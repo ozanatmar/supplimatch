@@ -1,185 +1,215 @@
 import { COUNTRIES } from "./countries.js";
 
 document.addEventListener('DOMContentLoaded', () => {  
-  const countrySelect = document.getElementById("countrySelect");
-  if(countrySelect) {
-    COUNTRIES.forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c;
-      opt.textContent = c;
-      countrySelect.appendChild(opt);
-    });
-  }
-  
-  const openBtn = document.getElementById('openCopackerModal');
-  const modal = document.getElementById('copackerModal');
-  const closeBtn = document.getElementById('closeModal');
-  const form = document.getElementById('copackerForm');
-  const successBox = document.getElementById('copackerSuccess');
-  const submitBtn = document.getElementById('copackerSubmit');
-  const openRequestBtn = document.getElementById('openRequestModal');
-  const requestModal = document.getElementById('requestModal');
-  const closeRequestBtn = document.getElementById('closeRequestModal');
-  const requestForm = document.getElementById('requestForm');
-  const requestSuccessBox = document.getElementById('requestSuccess');
-  const requestSubmitBtn = document.getElementById('requestSubmit');
+  // =========================
+  // Config
+  // =========================
   const REQUEST_WEBHOOK_URL = 'https://hook.eu2.make.com/8rgorhtlpbxbozuy39ap8ulnfusino4e';
   const COPACKER_REGISTER_WEBHOOK_URL = 'https://hook.eu2.make.com/b9vc54muqd8898ph4187nrdovte2tiod';
 
-  // create request modal
-  function resetRequestModal() {
-    requestForm.style.display = '';
-    requestSuccessBox.style.display = 'none';
-    requestForm.reset();
-    requestSubmitBtn.disabled = false;
-    requestSubmitBtn.textContent = 'Submit request';
-  }
-  
-  function openRequestModal() {
-    resetRequestModal();
-    requestModal.classList.add('active');
-  }
-  
-  function closeRequestModal() {
-    requestModal.classList.remove('active');
-  }
+  // =========================
+  // Helpers
+  // =========================
+  const $ = (id) => document.getElementById(id);
 
-  openRequestBtn?.addEventListener('click', openRequestModal);
-  closeRequestBtn?.addEventListener('click', closeRequestModal);
-  
-  requestModal?.addEventListener('click', (e) => {
-    if (e.target === requestModal) closeRequestModal();
-  });
-
-  // register copacker modal
-  function resetModal() {
-    // show form, hide success
-    form.style.display = '';
-    successBox.style.display = 'none';
-
-    // clear fields
-    form.reset();
-
-    // clear pill selections
-    document.querySelectorAll('.pill.active').forEach(p => p.classList.remove('active'));
-
-    // reset button
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Submit';
-  }
-
-  function openModal() {
-    resetModal();
-    modal.classList.add('active');
-  }
-
-  function closeModal() {
-    modal.classList.remove('active');
-  }
-
-  // Open/close modal
-  openBtn.addEventListener('click', openModal);
-  closeBtn.addEventListener('click', closeModal);
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeModal();
-      closeRequestModal();
-    }
-  });
-
-  // Pill multi-select handling
-  document.querySelectorAll('.pill-group').forEach(group => {
-    group.addEventListener('click', e => {
-      if (!e.target.classList.contains('pill')) return;
-      e.target.classList.toggle('active');
+  function populateCountrySelect(selectEl, list) {
+    if (!selectEl) return;
+    list.forEach((c) => {
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      selectEl.appendChild(opt);
     });
-  });
+  }
 
-  // submit create request form
-  requestForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-  
-    const payload = Object.fromEntries(new FormData(requestForm).entries());
-  
-    requestSubmitBtn.disabled = true;
-    requestSubmitBtn.textContent = 'Submitting...';
-  
-    try {
-      const res = await fetch(REQUEST_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+  function closeOnOverlayClick(overlayEl, closeFn) {
+    if (!overlayEl) return;
+    overlayEl.addEventListener("click", (e) => {
+      if (e.target === overlayEl) closeFn();
+    });
+  }
+
+  function setSubmitState(btn, isLoading, idleText, loadingText = "Submitting...") {
+    if (!btn) return;
+    btn.disabled = isLoading;
+    btn.textContent = isLoading ? loadingText : idleText;
+  }
+
+  function initPillGroups(root = document) {
+    root.querySelectorAll(".pill-group").forEach((group) => {
+      group.addEventListener("click", (e) => {
+        const pill = e.target.closest(".pill");
+        if (!pill) return;
+        pill.classList.toggle("active");
       });
-  
-      if (!res.ok) throw new Error('Request failed');
-  
-      requestForm.style.display = 'none';
-      requestSuccessBox.style.display = 'block';
-    } catch {
-      alert('Submission failed. Please try again.');
-      requestSubmitBtn.disabled = false;
-      requestSubmitBtn.textContent = 'Submit request';
-    }
-  });
+    });
+  }
 
-  // Submit register copacker form
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    // Build payload from inputs/selects
-    const payload = Object.fromEntries(new FormData(form).entries());
-
-    // Add pill selections as arrays
-    document.querySelectorAll('.pill-group').forEach(group => {
+  function getPillPayload(root = document) {
+    const payload = {};
+    root.querySelectorAll(".pill-group").forEach((group) => {
       const name = group.dataset.name;
-      payload[name] = Array.from(group.querySelectorAll('.pill.active')).map(p => p.textContent);
+      if (!name) return;
+      payload[name] = Array.from(group.querySelectorAll(".pill.active")).map(
+        (p) => p.textContent
+      );
     });
+    return payload;
+  }
 
-    // UI: loading state
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Submitting...';
+  function clearAllPills(root = document) {
+    root.querySelectorAll(".pill.active").forEach((p) => p.classList.remove("active"));
+  }
+
+  async function postJSON(url, payload) {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error("Request failed");
+    return res;
+  }
+
+  function initInputCharacterFiltering(root = document) {
+    const rules = {
+      "letters-space": {
+        test: /^[A-Za-z ]*$/,
+        sanitize: (v) => v.replace(/[^A-Za-z ]/g, ""),
+      },
+      "alphanum-space": {
+        test: /^[A-Za-z0-9 ]*$/,
+        sanitize: (v) => v.replace(/[^A-Za-z0-9 ]/g, ""),
+      },
+    };
+
+    root.querySelectorAll("input[data-allowed]").forEach((input) => {
+      const rule = rules[input.dataset.allowed];
+      if (!rule) return;
+
+      input.addEventListener("input", () => {
+        if (!rule.test.test(input.value)) input.value = rule.sanitize(input.value);
+      });
+    });
+  }
+
+  // =========================
+  // Countries
+  // =========================
+  populateCountrySelect($("countrySelect"), COUNTRIES);
+
+  // =========================
+  // Co-packer modal
+  // =========================
+  const openCopackerModalBtn = $("openCopackerModal");
+  const copackerModalOverlay = $("copackerModal");
+  const closeCopackerModalBtn = $("closeModal");
+  const copackerForm = $("copackerForm");
+  const copackerSuccessBox = $("copackerSuccess");
+  const copackerSubmitBtn = $("copackerSubmit");
+
+  function resetCopackerModal() {
+    if (!copackerForm || !copackerSuccessBox) return;
+    copackerForm.style.display = "";
+    copackerSuccessBox.style.display = "none";
+    copackerForm.reset();
+    clearAllPills(copackerForm);
+    setSubmitState(copackerSubmitBtn, false, "Submit");
+  }
+
+  function openCopackerModal() {
+    if (!copackerModalOverlay) return;
+    resetCopackerModal();
+    copackerModalOverlay.classList.add("active");
+  }
+
+  function closeCopackerModal() {
+    copackerModalOverlay?.classList.remove("active");
+  }
+
+  openCopackerModalBtn?.addEventListener("click", openCopackerModal);
+  closeCopackerModalBtn?.addEventListener("click", closeCopackerModal);
+  closeOnOverlayClick(copackerModalOverlay, closeCopackerModal);
+
+  // Submit: co-packer
+  copackerForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const payload = Object.fromEntries(new FormData(copackerForm).entries());
+    Object.assign(payload, getPillPayload(copackerForm));
+
+    setSubmitState(copackerSubmitBtn, true, "Submit");
 
     try {
-      const res = await fetch(COPACKER_REGISTER_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error('Request failed');
-
-      // Show success, keep modal open
-      form.style.display = 'none';
-      successBox.style.display = 'block';
-    } catch (err) {
-      alert('Submission failed. Please try again.');
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Submit';
+      await postJSON(COPACKER_REGISTER_WEBHOOK_URL, payload);
+      copackerForm.style.display = "none";
+      copackerSuccessBox.style.display = "block";
+    } catch {
+      alert("Submission failed. Please try again.");
+      setSubmitState(copackerSubmitBtn, false, "Submit");
     }
   });
 
-  // Input character filtering
-  document.querySelectorAll('input[data-allowed]').forEach(input => {
-    const rules = {
-      'letters-space': /^[A-Za-z ]*$/,
-      'alphanum-space': /^[A-Za-z0-9 ]*$/
-    };
-  
-    const regex = rules[input.dataset.allowed];
-  
-    input.addEventListener('input', () => {
-      if (!regex.test(input.value)) {
-        if (input.dataset.allowed === 'letters-space') {
-          input.value = input.value.replace(/[^A-Za-z ]/g, '');
-        } else if (input.dataset.allowed === 'alphanum-space') {
-          input.value = input.value.replace(/[^A-Za-z0-9 ]/g, '');
-        }
-      }
-    });
+  // =========================
+  // Request modal
+  // =========================
+  const openRequestModalBtn = $("openRequestModal");
+  const requestModalOverlay = $("requestModal");
+  const closeRequestModalBtn = $("closeRequestModal");
+  const requestForm = $("requestForm");
+  const requestSuccessBox = $("requestSuccess");
+  const requestSubmitBtn = $("requestSubmit");
+
+  function resetRequestModal() {
+    if (!requestForm || !requestSuccessBox) return;
+    requestForm.style.display = "";
+    requestSuccessBox.style.display = "none";
+    requestForm.reset();
+    setSubmitState(requestSubmitBtn, false, "Submit request");
+  }
+
+  function openRequestModal() {
+    if (!requestModalOverlay) return;
+    resetRequestModal();
+    requestModalOverlay.classList.add("active");
+  }
+
+  function closeRequestModal() {
+    requestModalOverlay?.classList.remove("active");
+  }
+
+  openRequestModalBtn?.addEventListener("click", openRequestModal);
+  closeRequestModalBtn?.addEventListener("click", closeRequestModal);
+  closeOnOverlayClick(requestModalOverlay, closeRequestModal);
+
+  // Submit: request
+  requestForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const payload = Object.fromEntries(new FormData(requestForm).entries());
+
+    setSubmitState(requestSubmitBtn, true, "Submit request");
+
+    try {
+      await postJSON(REQUEST_WEBHOOK_URL, payload);
+      requestForm.style.display = "none";
+      requestSuccessBox.style.display = "block";
+    } catch {
+      alert("Submission failed. Please try again.");
+      setSubmitState(requestSubmitBtn, false, "Submit request");
+    }
+  });
+
+  // =========================
+  // Global init (once)
+  // =========================
+  initPillGroups(document);
+  initInputCharacterFiltering(document);
+
+  // Esc closes both
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    closeCopackerModal();
+    closeRequestModal();
   });
 });

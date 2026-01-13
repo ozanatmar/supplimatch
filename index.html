@@ -88,15 +88,6 @@
       
           <form id="requestForm">
             <div class="form-grid">
-              <div class="form-group">
-                <label>Your name</label>
-                <input type="text" name="name" required maxlength="40" placeholder="John Doe" />
-              </div>
-      
-              <div class="form-group">
-                <label>Your email</label>
-                <input type="email" name="email" required placeholder="you@brand.com" />
-              </div>
       
               <div class="form-group span-2">
                 <label>Product / request title</label>
@@ -108,33 +99,33 @@
                 <select name="form" required>
                   <option value="" disabled selected hidden>Select</option>
                   <option>Capsules</option>
-                  <option>Tablets</option>
-                  <option>Softgels</option>
-                  <option>Powders</option>
-                  <option>Liquids</option>
                   <option>Chewables</option>
+                  <option>Liquids</option>
                   <option>Lozenges</option>
+                  <option>Powders</option>
+                  <option>Softgels</option>
+                  <option>Tablets</option>
                 </select>
-              </div>
-      
-              <div class="form-group">
-                <label>Estimated quantity (MOQ)</label>
-                <input type="number" name="quantity" required min="1" placeholder="5000" />
               </div>
       
               <div class="form-group">
                 <label>Packaging</label>
                 <select name="packaging" required>
                   <option value="" disabled selected hidden>Select</option>
+                  <option>Blisters</option>
                   <option>Bottles (Plastic)</option>
                   <option>Bottles (Glass)</option>
+                  <option>Bulk</option>
                   <option>Jars</option>
-                  <option>Blisters</option>
+                  <option>Pouches</option>
                   <option>Sachets</option>
                   <option>Sticks</option>
-                  <option>Bulk</option>
-                  <option>Pouches</option>
                 </select>
+              </div>
+      
+              <div class="form-group">
+                <label>Estimated quantity (MOQ)</label>
+                <input type="number" name="quantity" required min="1" placeholder="5000" />
               </div>
       
               <div class="form-group">
@@ -147,10 +138,15 @@
                   <option>Other</option>
                 </select>
               </div>
+              
+              <div class="form-group">
+                <label>Your name</label>
+                <input type="text" name="name" required maxlength="40" placeholder="John Doe" />
+              </div>
       
-              <div class="form-group span-2">
-                <label>Notes (optional)</label>
-                <textarea name="notes" rows="3" maxlength="600" placeholder="Certifications, flavor, labeling, special requirements..."></textarea>
+              <div class="form-group">
+                <label>Your email</label>
+                <input type="email" name="email" required placeholder="you@brand.com" />
               </div>
       
               <div class="grid-spacer" aria-hidden="true"></div>

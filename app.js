@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Countries
   // =========================
   populateCountrySelect($("countrySelect"), COUNTRIES);
-  populateSourceSelect($("targetSource"), COUNTRIES);
+  populateSourceSelect($("targetSourceSelect"), COUNTRIES);
 
 
   // =========================

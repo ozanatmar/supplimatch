@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     addOption(select, "All", undefined, { selected:true });
   
     // 2) Regions
+    addSeparator(select);
     const regions = [
       "Asia",
       "Europe",

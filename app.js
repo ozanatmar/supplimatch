@@ -22,6 +22,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function addOption(select, label, value, { disabled = false, selected = false } = {}) {
+    if (!select) return;
+    const opt = document.createElement("option");
+    opt.textContent = label;
+    opt.value = value ?? label;
+    opt.disabled = disabled;
+    opt.selected = selected;
+    select.appendChild(opt);
+  }
+  
+  function addSeparator(select) {
+    addOption(select, "──────────", "", { disabled: true });
+  }
+
+  function populateSourceSelect(select, countries) {
+    if (!select) return;
+  
+    // clear existing
+    select.innerHTML = "";
+  
+    // 1) All (default)
+    addOption(select, "All", "ALL", { selected: true });
+  
+    // 2) Regions
+    addSeparator(select);
+    const regions = [
+      ["Asia", "REGION_ASIA"],
+      ["Europe", "REGION_EUROPE"],
+      ["Africa", "REGION_AFRICA"],
+      ["North America", "REGION_NORTH_AMERICA"],
+      ["South America", "REGION_SOUTH_AMERICA"],
+      ["Oceania", "REGION_OCEANIA"],
+      ["European Union", "REGION_EU"],
+    ];
+    regions.forEach(([label, value]) => addOption(select, label, value));
+  
+    // 3) Countries
+    addSeparator(select);
+    countries.forEach(c => addOption(select, c, c));
+  }
+
   function closeOnOverlayClick(overlayEl, closeFn) {
     if (!overlayEl) return;
     overlayEl.addEventListener("click", (e) => {
@@ -97,6 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Countries
   // =========================
   populateCountrySelect($("countrySelect"), COUNTRIES);
+  populateSourceSelect($("targetSource"), COUNTRIES);
+
 
   // =========================
   // Co-packer modal

@@ -43,20 +43,19 @@ document.addEventListener('DOMContentLoaded', () => {
     select.innerHTML = "";
   
     // 1) All (default)
-    addOption(select, "All", "ALL", { selected: true });
+    addOption(select, "All", undefined, { selected:true });
   
     // 2) Regions
-    addSeparator(select);
     const regions = [
-      ["Asia", "REGION_ASIA"],
-      ["Europe", "REGION_EUROPE"],
-      ["Africa", "REGION_AFRICA"],
-      ["North America", "REGION_NORTH_AMERICA"],
-      ["South America", "REGION_SOUTH_AMERICA"],
-      ["Oceania", "REGION_OCEANIA"],
-      ["European Union", "REGION_EU"],
+      "Asia",
+      "Europe",
+      "Africa",
+      "North America",
+      "South America",
+      "Oceania",
+      "European Union",
     ];
-    regions.forEach(([label, value]) => addOption(select, label, value));
+    regions.forEach(label => addOption(select, label, label));
   
     // 3) Countries
     addSeparator(select);

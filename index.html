@@ -89,9 +89,23 @@
           <form id="requestForm">
             <div class="form-grid">
       
-              <div class="form-group span-2">
+              <div class="form-group">
                 <label>Product / request title</label>
                 <input type="text" name="product" required maxlength="80" placeholder="Magnesium glycinate capsules" />
+              </div>
+              
+              <div class="form-group">
+                <label>Pack size</label>
+                <div class="pack-size">
+                  <input type="number" name="packSizeValue" required min="1" placeholder="120" aria-label="Pack size value" />
+                  <select name="packSizeUnit" required aria-label="Pack size unit" >
+                    <option value="pcs">pcs</option>
+                    <option value="mg">mg</option>
+                    <option value="g">g</option>
+                    <option value="ml">ml</option>
+                    <option value="l">l</option>
+                  </select>
+                </div>
               </div>
       
               <div class="form-group">
@@ -131,7 +145,7 @@
               </div>
       
               <div class="form-group">
-                <label>Estimated quantity (MOQ)</label>
+                <label>Total order quantity</label>
                 <input type="number" name="quantity" required min="1" placeholder="5000" />
               </div>
       

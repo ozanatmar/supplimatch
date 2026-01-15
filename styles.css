@@ -384,6 +384,23 @@
     }
 
     /* =========================
+       PACK SIZE INLINE GROUP
+    ========================= */
+    .pack-size {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .pack-size input {
+      flex: 1.2;
+    }
+    
+    .pack-size select {
+      flex: 0.8;
+      min-width: 80px;
+    }
+
+    /* =========================
        GRID UTILITIES
     ========================= */    
     .span-2 { grid-column: 1 / -1; }

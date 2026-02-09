@@ -13,6 +13,7 @@
   <meta name="author" content="SuppliMatch" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://supplimatch.com/" />
+  <link rel="icon" type="image/png" href="/favicon.png">
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
@@ -280,7 +281,63 @@
           </div>
 
           <!-- Pack Size Row -->
-<!-- Pack Size Row --> <div class="grid grid-cols-1 sm:grid-cols-2 gap-6"> <div class="space-y-2"> <label class="text-sm font-medium text-gray-300">Pack Size <span class="text-red-400">*</span></label> <div class="flex gap-2"> <input type="number" name="packSizeValue" required min="1" placeholder="120" class="flex-1 bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors" /> <div class="relative min-w-[96px]"> <select name="packSizeUnit" required class="w-full appearance-none bg-black/20 border border-border rounded-xl pl-4 pr-8 py-3 text-white focus:outline-none focus:border-accent transition-colors cursor-pointer"> <option value="pcs">pcs</option> <option value="mg">mg</option> <option value="g">g</option> <option value="ml">ml</option> <option value="l">l</option> </select> <i data-lucide="chevron-down" class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none"></i> </div> </div> </div> <div class="space-y-2"> <label class="text-sm font-medium text-gray-300">Supplement Form <span class="text-red-400">*</span></label> <div class="relative"> <select name="form" required class="w-full appearance-none bg-black/20 border border-border rounded-xl pl-4 pr-10 py-3 text-white focus:outline-none focus:border-accent transition-colors cursor-pointer"> <option value="" disabled selected hidden>Select...</option> <option>Capsules</option> <option>Chewables</option> <option>Effervescent tablets</option> <option>Gels</option> <option>Gummies</option> <option>Liquids</option> <option>Lozenges</option> <option>Oral sprays</option> <option>Powders</option> <option>Softgels</option> <option>Tablets</option> </select> <i data-lucide="chevron-down" class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none"></i> </div> </div> </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+			  <div class="space-y-2">
+				<label class="text-sm font-medium text-gray-300">
+				  Pack Size <span class="text-red-400">*</span>
+				</label>
+
+				<div class="flex gap-2 items-stretch">
+				  <input
+					type="number"
+					name="packSizeValue"
+					required
+					min="1"
+					placeholder="120"
+					class="flex-1 bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+				  />
+
+				  <div class="relative min-w-[96px] z-10">
+					<select
+					  name="packSizeUnit"
+					  required
+					  class="w-full appearance-none bg-black/20 border border-border rounded-xl pl-4 pr-8 py-3 text-white focus:outline-none focus:border-accent transition-colors cursor-pointer"
+					>
+					  <option value="pcs">pcs</option>
+					  <option value="mg">mg</option>
+					  <option value="g">g</option>
+					  <option value="ml">ml</option>
+					  <option value="l">l</option>
+					</select>
+					<i
+					  data-lucide="chevron-down"
+					  class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none"
+					></i>
+				  </div>
+				</div>
+			  </div>
+
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Supplement Form <span class="text-red-400">*</span></label>
+              <div class="relative">
+                <select name="form" required class="w-full appearance-none bg-black/20 border border-border rounded-xl pl-4 pr-10 py-3 text-white focus:outline-none focus:border-accent transition-colors cursor-pointer">
+                  <option value="" disabled selected hidden>Select...</option>
+                  <option>Capsules</option>
+                  <option>Chewables</option>
+                  <option>Effervescent tablets</option>
+                  <option>Gels</option>
+                  <option>Gummies</option>
+                  <option>Liquids</option>
+                  <option>Lozenges</option>
+                  <option>Oral sprays</option>
+                  <option>Powders</option>
+                  <option>Softgels</option>
+                  <option>Tablets</option>
+                </select>
+                <i data-lucide="chevron-down" class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none"></i>
+              </div>
+            </div>
+          </div>
 
           <!-- Packaging & Qty -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">

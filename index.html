@@ -641,6 +641,7 @@
              pill.classList.toggle('text-gray-300');
              pill.classList.toggle('border-accent');
              pill.classList.toggle('border-border');
+             pill.classList.toggle('is-selected');
              
              // Update hidden inputs
              container.innerHTML = '';
@@ -769,6 +770,14 @@ copackerForm.addEventListener('submit', async (e) => {
   try {
     const formData = new FormData(copackerForm);
     const payload = Object.fromEntries(formData.entries());
+
+    // Remove lingering array-name keys like "supplement_forms[]" and "packaging[]"
+    delete payload['supplement_forms[]'];
+    delete payload['packaging[]'];
+    
+    // Then manually assign your arrays
+    payload.supplement_forms = activeValuesForSupplementForms;
+    payload.packaging = activeValuesForPackaging;
 
     // Manually collect pill data as clean arrays
     document.querySelectorAll('.pill-group').forEach(group => {

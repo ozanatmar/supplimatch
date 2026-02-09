@@ -762,42 +762,35 @@
       // Form Handling: Copacker
 copackerForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+
   const btn = $('copackerSubmit');
   const originalText = btn.innerHTML;
-  
   setLoading(btn, true);
 
   try {
     const formData = new FormData(copackerForm);
     const payload = Object.fromEntries(formData.entries());
 
-    // Remove lingering array-name keys like "supplement_forms[]" and "packaging[]"
-    delete payload['supplement_forms[]'];
-    delete payload['packaging[]'];
-    
-    // Then manually assign your arrays
-    payload.supplement_forms = activeValuesForSupplementForms;
-    payload.packaging = activeValuesForPackaging;
-
-    // Manually collect pill data as clean arrays
+    // Clean pill data — arrays ONLY
     document.querySelectorAll('.pill-group').forEach(group => {
-      const fieldName = group.dataset.name; // e.g., "supplement_forms"
-      const activeValues = Array.from(group.querySelectorAll('.pill.is-selected'))
-                                .map(pill => pill.textContent.trim());
-      
-      payload[fieldName] = activeValues;
+      const fieldName = group.dataset.name;
+      payload[fieldName] = Array.from(
+        group.querySelectorAll('.pill.is-selected')
+      ).map(p => p.textContent.trim());
     });
 
     await postJSON(COPACKER_REGISTER_WEBHOOK_URL, payload);
-    
+
     copackerForm.style.display = 'none';
     copackerSuccess.classList.remove('hidden');
   } catch (err) {
+    console.error(err);
     alert('Registration failed.');
   } finally {
     setLoading(btn, false, originalText);
   }
 });
+
 
 
     });

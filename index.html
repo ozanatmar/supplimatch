@@ -759,27 +759,32 @@
       }
 
       // Form Handling: Copacker
-      if(copackerForm) {
+      if (copackerForm) {
         copackerForm.addEventListener('submit', async (e) => {
           e.preventDefault();
+      
           const btn = $('copackerSubmit');
           const originalText = btn.innerHTML;
-          
+      
           setLoading(btn, true);
-
+      
           try {
+            // 1. Normal inputs ONLY
             const formData = new FormData(copackerForm);
             const payload = Object.fromEntries(formData.entries());
-            
-            // Clean up pill data (get joined string preferred for simple webhook)
-            // The pills logic added both array and string inputs. 
-            // Object.fromEntries takes the last value for a key, which matches our 'joinedInput' logic in initPills
-            
+      
+            // 2. Explicitly inject pill arrays (overwrite anything FormData tried)
+            const pillPayload = getPillPayload(copackerForm);
+      
+            payload.supplement_forms = pillPayload.supplement_forms || [];
+            payload.packaging = pillPayload.packaging || [];
+      
             await postJSON(COPACKER_REGISTER_WEBHOOK_URL, payload);
-            
+      
             copackerForm.style.display = 'none';
             copackerSuccess.classList.remove('hidden');
             copackerSuccess.classList.add('fade-in');
+      
           } catch (err) {
             alert('Registration failed. Please try again.');
           } finally {
@@ -787,6 +792,7 @@
           }
         });
       }
+
 
     });
   </script>

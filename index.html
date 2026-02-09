@@ -1,117 +1,308 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
-  <title>SuppliMatch — Get Supplement Quotes Without Signup</title>
-  <meta name="description" content="Create a supplement manufacturing request and receive price offers from qualified co-packers. No signup. No marketplace accounts. Just email." />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="./styles.css" />
-  <script type="module" src="./app.js" defer></script>
+  
+  <!-- =========================
+       SEO & METADATA
+  ========================= -->
+  <title>SuppliMatch — Get Supplement Manufacturing Quotes (No Signup)</title>
+  <meta name="description" content="Connect with verified supplement co-packers and manufacturers without creating an account. Send one request, get quotes by email. Private label & contract manufacturing simplified." />
+  <meta name="keywords" content="supplement manufacturing, co-packer, contract manufacturing, private label supplements, nutraceuticals, get quotes, manufacturing request" />
+  <meta name="author" content="SuppliMatch" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://supplimatch.com/" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://supplimatch.com/" />
+  <meta property="og:title" content="SuppliMatch — Get Supplement Quotes Without Signup" />
+  <meta property="og:description" content="Create a manufacturing request in 2 minutes. Receive offers from qualified co-packers directly to your email. No marketplace fees, no accounts." />
+  <meta property="og:image" content="https://supplimatch.com/og-image.png" /> <!-- Placeholder for future og image -->
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://supplimatch.com/" />
+  <meta name="twitter:title" content="SuppliMatch — Direct Supplement Manufacturing Quotes" />
+  <meta name="twitter:description" content="No signup. No dashboards. Just connect with verified supplement manufacturers via email." />
+  
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SuppliMatch",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "A platform connecting supplement brand owners with co-packers via email-based requests without requiring user account registration."
+  }
+  </script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Config for Custom Colors -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#0b0f14',
+            surface: '#121826',
+            accent: '#22c55e', // green-500
+            'accent-hover': '#16a34a', // green-600
+            'accent-glow': 'rgba(34,197,94,0.25)',
+            secondary: '#38bdf8', // sky-400
+            muted: '#9ca3af', // gray-400
+            border: 'rgba(255,255,255,0.08)',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          backgroundImage: {
+            'hero-glow': 'radial-gradient(1200px 600px at 50% -20%, #0f172a, #0b0f14)',
+            'card-gradient': 'linear-gradient(180deg, rgba(255,255,255,0.03), transparent)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Styles for Scrollbar & specific details -->
+  <style>
+    body {
+      background-color: #0b0f14;
+      color: #e5e7eb;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0f14; 
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #374151; 
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4b5563; 
+    }
+    
+    /* Animation classes */
+    .fade-in { animation: fadeIn 0.5s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .modal-enter { opacity: 0; pointer-events: none; transform: scale(0.95); transition: all 0.3s ease-out; }
+    .modal-enter-active { opacity: 1; pointer-events: auto; transform: scale(1); }
+    .modal-exit { opacity: 0; pointer-events: none; transform: scale(0.95); transition: all 0.2s ease-in; }
+    
+    /* Form autofill fix for dark mode */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus, 
+    textarea:-webkit-autofill,
+    textarea:-webkit-autofill:hover,
+    textarea:-webkit-autofill:focus,
+    select:-webkit-autofill,
+    select:-webkit-autofill:hover,
+    select:-webkit-autofill:focus {
+      -webkit-text-fill-color: #e5e7eb;
+      -webkit-box-shadow: 0 0 0px 1000px #1e293b inset;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+  </style>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body>
-  <div class="container">
-    <div class="hero">
+<body class="min-h-screen flex flex-col font-sans selection:bg-accent selection:text-white bg-hero-glow">
 
-      <!-- LEFT  -->
-      <div>
-        <h1>
-          Get supplement manufacturing quotes from real co-packers<br />
-          <span>without signup or marketplaces</span>
-        </h1>
+  <!-- =========================
+       HEADER
+  ========================= -->
+  <header class="w-full max-w-7xl mx-auto px-6 py-8 flex justify-between items-center z-10">
+    <div class="flex items-center gap-2 select-none">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-green-700 flex items-center justify-center shadow-lg shadow-green-900/50">
+        <i data-lucide="flask-conical" class="text-white w-5 h-5"></i>
+      </div>
+      <span class="text-xl font-bold tracking-tight text-white">Suppli<span class="text-accent">Match</span></span>
+    </div>
+    <nav>
+      <button onclick="document.getElementById('openCopackerModal').click()" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">
+        Are you a Co-packer?
+      </button>
+    </nav>
+  </header>
 
-        <p class="subtitle">
-          SuppliMatch lets brand owners send a single supplement request and receive price offers from qualified co-packers — directly by email.
-        </p>
+  <!-- =========================
+       MAIN CONTENT
+  ========================= -->
+  <main class="flex-grow flex flex-col items-center justify-center w-full max-w-7xl mx-auto px-6 pb-12">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center w-full">
+      
+      <!-- Left Column: Hero & Steps -->
+      <section class="lg:col-span-7 flex flex-col gap-8 fade-in">
+        <div class="space-y-4">
+          <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-accent text-xs font-semibold uppercase tracking-wider">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            Live Prototype
+          </span>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight text-white">
+            Get supplement quotes from real co-packers<br />
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent to-emerald-400">without signup.</span>
+          </h1>
+          <p class="text-lg text-muted max-w-xl leading-relaxed">
+            SuppliMatch lets brand owners send a single manufacturing request and receive price offers from qualified co-packers — directly by email.
+          </p>
+        </div>
 
-        <div class="steps">
-          <div class="step">
-            <div class="step-number">1</div>
-            <div class="step-text">
-              Create a supplement request
-              <span class="hint" data-hint="You describe the product: form, quantity, packaging, target market. No account is created.">
-                (what you want to produce)
-              </span>
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-4 mt-2">
+          <button id="openRequestModal" class="group relative px-8 py-4 bg-gradient-to-br from-accent to-green-600 text-white font-bold rounded-2xl shadow-lg shadow-green-500/25 hover:shadow-green-500/40 hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-3">
+            <span>Create a request</span>
+            <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+          </button>
+          <button id="openCopackerModal" class="px-8 py-4 bg-transparent border border-gray-700 text-gray-300 font-semibold rounded-2xl hover:border-gray-500 hover:text-white hover:bg-white/5 transition-all duration-200">
+            Register as co-packer
+          </button>
+        </div>
+
+        <!-- Steps Visualization -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/5">
+          <!-- Step 1 -->
+          <div class="flex flex-col gap-3 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-accent/30 transition-colors group cursor-default">
+            <div class="w-8 h-8 rounded-full bg-gray-800 text-accent font-bold flex items-center justify-center text-sm border border-gray-700 group-hover:border-accent transition-colors">1</div>
+            <div>
+              <h3 class="font-semibold text-white text-sm">Create Request</h3>
+              <p class="text-xs text-gray-400 mt-1">Describe form, quantity & packaging. No account needed.</p>
             </div>
           </div>
-
-          <div class="step">
-            <div class="step-number">2</div>
-            <div class="step-text">
-              Verified co-packers receive it by email
-              <span class="hint" data-hint="Only manufacturers who registered their capabilities and verified their email receive matching requests.">
-                (no spam lists)
-              </span>
+          <!-- Step 2 -->
+          <div class="flex flex-col gap-3 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-accent/30 transition-colors group cursor-default">
+            <div class="w-8 h-8 rounded-full bg-gray-800 text-accent font-bold flex items-center justify-center text-sm border border-gray-700 group-hover:border-accent transition-colors">2</div>
+            <div>
+              <h3 class="font-semibold text-white text-sm">Verified Match</h3>
+              <p class="text-xs text-gray-400 mt-1">We email your request only to co-packers with matching capabilities.</p>
             </div>
           </div>
+          <!-- Step 3 -->
+          <div class="flex flex-col gap-3 p-4 rounded-xl bg-white/5 border border-white/5 hover:border-accent/30 transition-colors group cursor-default">
+            <div class="w-8 h-8 rounded-full bg-gray-800 text-accent font-bold flex items-center justify-center text-sm border border-gray-700 group-hover:border-accent transition-colors">3</div>
+            <div>
+              <h3 class="font-semibold text-white text-sm">Get Offers</h3>
+              <p class="text-xs text-gray-400 mt-1">Receive quotes. Reveal your contact details only when you're ready.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          <div class="step">
-            <div class="step-number">3</div>
-            <div class="step-text">
-              Get price offers → reveal contacts when ready
-              <span class="hint" data-hint="You choose when to exchange full contact details. Until then, offers stay email-based.">
-                (you stay in control)
-              </span>
+      <!-- Right Column: "Why this exists" Card -->
+      <aside class="lg:col-span-5 fade-in" style="animation-delay: 0.2s">
+        <div class="bg-card-gradient border border-border rounded-3xl p-8 backdrop-blur-sm shadow-2xl">
+          <div class="flex items-center gap-3 mb-6">
+            <i data-lucide="info" class="text-secondary w-6 h-6"></i>
+            <h2 class="text-xl font-bold text-white">Why this exists</h2>
+          </div>
+          
+          <div class="space-y-6 text-sm leading-relaxed text-gray-400">
+            <p>
+              <strong class="text-gray-200">The Problem:</strong> Finding supplement manufacturers is slow, fragmented, and full of cold emails to generic "info@" addresses.
+            </p>
+            <p>
+              <strong class="text-gray-200">The Solution:</strong> SuppliMatch removes accounts, dashboards, and negotiation walls — replacing them with a simple, verified email workflow.
+            </p>
+            <div class="flex items-center gap-3 p-4 bg-secondary/10 border border-secondary/20 rounded-xl mt-4">
+              <i data-lucide="shield-check" class="text-secondary w-5 h-5 flex-shrink-0"></i>
+              <p class="text-xs text-secondary/90">
+                <strong>Privacy First:</strong> Your contact details are hidden from co-packers until you explicitly accept a quote.
+              </p>
             </div>
           </div>
         </div>
 
-        <div class="actions">
-          <button class="btn btn-primary" id="openRequestModal">Create a request</button>
-          <button class="btn btn-secondary" id="openCopackerModal">Register as co-packer</button>
+        <!-- Social Proof / Stats placeholder -->
+        <div class="mt-8 flex items-center justify-center gap-8 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+           <!-- Placeholder logos or trust indicators could go here -->
         </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <footer class="w-full border-t border-white/5 py-8 mt-auto">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+      <p>&copy; 2024 SuppliMatch. All rights reserved.</p>
+      <div class="flex gap-6">
+        <span>No Signup Required</span>
+        <span>Secure Email Workflow</span>
+        <span>Free for Brands</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================
+       MODAL: CREATE REQUEST
+  ========================= -->
+  <div id="requestModalOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/80 backdrop-blur-sm p-4 modal-exit opacity-0" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="bg-[#121826] border border-border w-full max-w-2xl rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto relative flex flex-col" onclick="event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div class="sticky top-0 z-10 bg-[#121826]/95 backdrop-blur border-b border-border p-6 flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-bold text-white">Create a request</h2>
+          <p class="text-sm text-muted mt-1">Tell us what to manufacture. Co-packers respond by email.</p>
+        </div>
+        <button id="closeRequestModal" class="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" aria-label="Close modal">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
 
-      <!-- RIGHT -->
-      <div class="side-card">
-        <span class="badge">Prototype · Early access</span>
-        <h3>Why this exists</h3>
-        <p>
-          Finding supplement manufacturers is slow, fragmented, and full of cold emails.
-        </p>
-        <p>
-          SuppliMatch removes accounts, dashboards, and negotiations walls — replacing them with a simple, verified email workflow.
-        </p>
-        <p>
-          If there is demand, this prototype evolves into a full platform.
-        </p>
-      </div>
+      <!-- Modal Body -->
+      <div class="p-6 md:p-8">
+        <form id="requestForm" class="space-y-6">
+          
+          <!-- Product Name -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-300">Product / Request Title <span class="text-red-400">*</span></label>
+            <input type="text" name="product" required maxlength="80" placeholder="e.g. Magnesium Glycinate Capsules" class="w-full bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors" />
+          </div>
 
-      
-      <!-- REQUEST MODAL -->
-      <div class="modal-overlay" id="requestModal">
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="requestTitle">
-          <button class="modal-close" id="closeRequestModal" aria-label="Close">×</button>
-      
-          <h2 id="requestTitle">Create a request</h2>
-          <p>Tell us what you want to manufacture. Co-packers will respond by email.</p>
-      
-          <form id="requestForm">
-            <div class="form-grid">
-      
-              <div class="form-group">
-                <label>Product / request title</label>
-                <input type="text" name="product" required maxlength="80" placeholder="Magnesium glycinate capsules" />
-              </div>
-              
-              <div class="form-group">
-                <label>Pack size</label>
-                <div class="pack-size">
-                  <input type="number" name="packSizeValue" required min="1" placeholder="120" aria-label="Pack size value" />
-                  <select name="packSizeUnit" required aria-label="Pack size unit" >
+          <!-- Pack Size Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Pack Size <span class="text-red-400">*</span></label>
+              <div class="flex gap-2">
+                <input type="number" name="packSizeValue" required min="1" placeholder="120" class="flex-1 bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors" />
+                <div class="relative w-24">
+                  <select name="packSizeUnit" required class="w-full appearance-none bg-black/20 border border-border rounded-xl pl-4 pr-8 py-3 text-white focus:outline-none focus:border-accent transition-colors cursor-pointer">
                     <option value="pcs">pcs</option>
                     <option value="mg">mg</option>
                     <option value="g">g</option>
                     <option value="ml">ml</option>
                     <option value="l">l</option>
                   </select>
+                  <i data-lucide="chevron-down" class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none"></i>
                 </div>
               </div>
-      
-              <div class="form-group">
-                <label>Supplement form</label>
-                <select name="form" required>
-                  <option value="" disabled selected hidden>Select</option>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Supplement Form <span class="text-red-400">*</span></label>
+              <div class="relative">
+                <select name="form" required class="w-full appearance-none bg-black/20 border border-border rounded-xl pl-4 pr-10 py-3 text-white focus:outline-none focus:border-accent transition-colors cursor-pointer">
+                  <option value="" disabled selected hidden>Select...</option>
                   <option>Capsules</option>
                   <option>Chewables</option>
                   <option>Effervescent tablets</option>
@@ -124,12 +315,18 @@
                   <option>Softgels</option>
                   <option>Tablets</option>
                 </select>
+                <i data-lucide="chevron-down" class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none"></i>
               </div>
-      
-              <div class="form-group">
-                <label>Packaging</label>
-                <select name="packaging" required>
-                  <option value="" disabled selected hidden>Select</option>
+            </div>
+          </div>
+
+          <!-- Packaging & Qty -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Packaging <span class="text-red-400">*</span></label>
+              <div class="relative">
+                <select name="packaging" required class="w-full appearance-none bg-black/20 border border-border rounded-xl pl-4 pr-10 py-3 text-white focus:outline-none focus:border-accent transition-colors cursor-pointer">
+                  <option value="" disabled selected hidden>Select...</option>
                   <option>Ampoules</option>
                   <option>Blisters</option>
                   <option>Bulk</option>
@@ -142,163 +339,458 @@
                   <option>Spray bottles</option>
                   <option>Stick packs</option>
                 </select>
+                <i data-lucide="chevron-down" class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none"></i>
               </div>
-      
-              <div class="form-group">
-                <label>Total order quantity</label>
-                <input type="number" name="quantity" required min="1" placeholder="5000" />
-              </div>
-      
-              <div class="form-group">
-                <label>Target source</label>
-                <select name="targetSource" required id="targetSourceSelect">
-                </select>
-              </div>
-              
-              <div class="form-group">
-                <label>Your name</label>
-                <input type="text" name="name" required maxlength="40" placeholder="John Doe" />
-              </div>
-      
-              <div class="form-group">
-                <label>Your email</label>
-                <input type="email" name="email" required placeholder="you@brand.com" />
-              </div>
-      
-              <div class="grid-spacer" aria-hidden="true"></div>
-      
-              <button type="submit" class="btn btn-primary full-width col-2" id="requestSubmit">
-                Submit request
-              </button>
             </div>
-          </form>
-      
-          <div class="success-message" id="requestSuccess" aria-live="polite">
-            ✅ <strong>Request received.</strong><br />
-            You’ll get replies by email.
-          </div>
-        </div>
-      </div>
 
-
-      <!-- COPACKER MODAL -->
-      <div class="modal-overlay" id="copackerModal">
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="copackerTitle">
-          <button class="modal-close" id="closeModal" aria-label="Close">×</button>
-      
-          <h2 id="copackerTitle">Register as a co-packer</h2>
-          <p>Leave your details to receive matching supplement requests by email.</p>
-      
-          <form id="copackerForm">
-            <div class="form-grid">
-      
-              <!-- NAME -->
-              <div class="form-group">
-                <label>Name</label>
-                <input type="text" name="name" required maxlength="20" data-allowed="letters-space" placeholder="John Doe" />
-              </div>
-        
-              <!-- COMPANY NAME -->
-              <div class="form-group">
-                <label>Company name</label>
-                <input type="text" name="company" required maxlength="20" data-allowed="letters-space" placeholder="Acme Pharma" />
-              </div>
-        
-              <!-- EMAIL -->
-              <div class="form-group">
-                <label>Email address</label>
-                <input type="email" name="email" required placeholder="you@company.com" pattern="^[^@]+@[^@]+\.[^@]+$" />
-              </div>
-
-              <!-- PHONE NUMBER (optional) -->
-              <div class="form-group">
-                <label>Phone number (+xxx...) (optional)</label>
-                <input type="tel" name="phone" placeholder="+359888123456" pattern="^\+[0-9]+$" inputmode="tel" />
-              </div>
-        
-              <!-- COUNTRY -->
-              <div class="form-group">
-                <label>Country</label>
-                <select name="country" required id="countrySelect">
-                  <option value="" disabled selected hidden>Select country</option>
-                </select>
-              </div>
-        
-              <!-- STATE -->
-              <div class="form-group">
-                <label>State / Region (optional)</label>
-                <input type="text" name="state" maxlength="20" data-allowed="alphanum-space" placeholder="Optional" />
-              </div>
-        
-              <!-- TOWN -->
-              <div class="form-group">
-                <label>Town</label>
-                <input type="text" name="town" required maxlength="20" data-allowed="alphanum-space" placeholder="Varna" />
-              </div>
-        
-              <!-- ZIP -->
-              <div class="form-group">
-                <label>ZIP code</label>
-                <input type="text" name="zip" required maxlength="10" data-allowed="alphanum-space" placeholder="9000" />
-              </div>
-        
-              <!-- STREET -->
-              <div class="form-group span-2">
-                <label>Street address</label>
-                <input type="text" name="street" required maxlength="50" data-allowed="alphanum-space" placeholder="Main street 12" />
-              </div>
-        
-              <!-- SUPPLEMENT FORMS -->
-              <div class="form-group col-1">
-                <label>Supplement forms</label>
-                <div class="pill-group" data-name="supplement_forms">
-                  <button type="button" class="pill">Capsules</button>
-                  <button type="button" class="pill">Chewables</button>
-                  <button type="button" class="pill">Effervescent tablets</button>
-                  <button type="button" class="pill">Gels</button>
-                  <button type="button" class="pill">Gummies</button>
-                  <button type="button" class="pill">Liquids</button>
-                  <button type="button" class="pill">Lozenges</button>
-                  <button type="button" class="pill">Oral sprays</button>
-                  <button type="button" class="pill">Powders</button>
-                  <button type="button" class="pill">Softgels</button>
-                  <button type="button" class="pill">Tablets</button>
-                </div>
-              </div>
-        
-              <!-- PACKAGING -->
-              <div class="form-group col-2">
-                <label>Packaging available</label>
-                <div class="pill-group" data-name="packaging">
-                  <button type="button" class="pill">Ampoules</button>
-                  <button type="button" class="pill">Blisters</button>
-                  <button type="button" class="pill">Bulk</button>
-                  <button type="button" class="pill">Dropper bottles</button>
-                  <button type="button" class="pill">Jars (glass)</button>
-                  <button type="button" class="pill">Jars (plastic)</button>
-                  <button type="button" class="pill">Pouches</button>
-                  <button type="button" class="pill">Sachets</button>
-                  <button type="button" class="pill">Single-dose tubes</button>
-                  <button type="button" class="pill">Spray bottles</button>
-                  <button type="button" class="pill">Stick packs</button>
-                </div>
-              </div>
-        
-              <div class="grid-spacer" aria-hidden="true"></div>
-
-              <button type="submit" class="btn btn-primary full-width col-2" id="copackerSubmit">
-                Submit
-              </button>
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Total Order Qty <span class="text-red-400">*</span></label>
+              <input type="number" name="quantity" required min="1" placeholder="5000" class="w-full bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors" />
             </div>
-          </form>
-      
-          <div class="success-message" id="copackerSuccess" aria-live="polite">
-            ✅ <strong>Registration received.</strong><br />
-            You’ll be notified when matching requests are available.
           </div>
+
+          <!-- Source -->
+          <div class="space-y-2">
+            <label class="text-sm font-medium text-gray-300">Target Manufacturer Location <span class="text-red-400">*</span></label>
+            <div class="relative">
+              <select name="targetSource" required id="targetSourceSelect" class="w-full appearance-none bg-black/20 border border-border rounded-xl pl-4 pr-10 py-3 text-white focus:outline-none focus:border-accent transition-colors cursor-pointer">
+                <!-- Populated by JS -->
+              </select>
+              <i data-lucide="chevron-down" class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none"></i>
+            </div>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-white/5">
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Your Name <span class="text-red-400">*</span></label>
+              <input type="text" name="name" required maxlength="40" placeholder="John Doe" class="w-full bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Your Email <span class="text-red-400">*</span></label>
+              <input type="email" name="email" required placeholder="you@brand.com" class="w-full bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors" />
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div class="pt-4">
+            <button type="submit" id="requestSubmit" class="w-full py-4 bg-accent hover:bg-accent-hover text-black font-bold rounded-xl shadow-lg shadow-green-500/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
+              Submit Request
+            </button>
+            <p class="text-center text-xs text-gray-500 mt-3">
+              By submitting, you agree to receive email quotes. Your email is hidden from co-packers until you reply.
+            </p>
+          </div>
+        </form>
+
+        <!-- Success Message -->
+        <div id="requestSuccess" class="hidden text-center py-12">
+          <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="check" class="w-8 h-8 text-accent"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-2">Request Received!</h3>
+          <p class="text-gray-400">Please check your email to verify your request.<br>Once verified, we'll send it to matching co-packers.</p>
+          <button onclick="document.getElementById('closeRequestModal').click()" class="mt-8 text-accent font-medium hover:text-white transition-colors">Close</button>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- =========================
+       MODAL: REGISTER CO-PACKER
+  ========================= -->
+  <div id="copackerModalOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/80 backdrop-blur-sm p-4 modal-exit opacity-0" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="bg-[#121826] border border-border w-full max-w-3xl rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto relative flex flex-col" onclick="event.stopPropagation()">
+      
+      <!-- Modal Header -->
+      <div class="sticky top-0 z-10 bg-[#121826]/95 backdrop-blur border-b border-border p-6 flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-bold text-white">Register as a Co-packer</h2>
+          <p class="text-sm text-muted mt-1">Receive matching supplement requests by email.</p>
+        </div>
+        <button id="closeCopackerModal" class="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" aria-label="Close modal">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 md:p-8">
+        <form id="copackerForm" class="space-y-6">
+          
+          <!-- Personal/Company Info -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Contact Name <span class="text-red-400">*</span></label>
+              <input type="text" name="name" required maxlength="20" data-allowed="letters-space" placeholder="John Doe" class="w-full bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent transition-colors" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Company Name <span class="text-red-400">*</span></label>
+              <input type="text" name="company" required maxlength="20" data-allowed="letters-space" placeholder="Acme Pharma" class="w-full bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent transition-colors" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Email Address <span class="text-red-400">*</span></label>
+              <input type="email" name="email" required placeholder="you@company.com" pattern="^[^@]+@[^@]+\.[^@]+$" class="w-full bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent transition-colors" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Phone (Optional)</label>
+              <input type="tel" name="phone" placeholder="+1234567890" pattern="^\+[0-9]+$" inputmode="tel" class="w-full bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent transition-colors" />
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+             <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Country <span class="text-red-400">*</span></label>
+              <div class="relative">
+                <select name="country" required id="countrySelect" class="w-full appearance-none bg-black/20 border border-border rounded-xl pl-4 pr-10 py-3 text-white focus:outline-none focus:border-accent transition-colors cursor-pointer">
+                  <option value="" disabled selected hidden>Select...</option>
+                </select>
+                <i data-lucide="chevron-down" class="absolute right-3 top-3.5 w-4 h-4 text-gray-500 pointer-events-none"></i>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Town/City <span class="text-red-400">*</span></label>
+              <input type="text" name="town" required maxlength="20" data-allowed="alphanum-space" placeholder="City" class="w-full bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent transition-colors" />
+            </div>
+             <div class="space-y-2">
+              <label class="text-sm font-medium text-gray-300">Zip Code <span class="text-red-400">*</span></label>
+              <input type="text" name="zip" required maxlength="10" data-allowed="alphanum-space" placeholder="Zip" class="w-full bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent transition-colors" />
+            </div>
+            <div class="space-y-2 md:col-span-3">
+               <label class="text-sm font-medium text-gray-300">Street Address <span class="text-red-400">*</span></label>
+               <input type="text" name="street" required maxlength="50" data-allowed="alphanum-space" placeholder="123 Manufacturing Way" class="w-full bg-black/20 border border-border rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-accent transition-colors" />
+            </div>
+          </div>
+
+          <!-- Capabilities (Pills) -->
+          <div class="space-y-6 pt-4 border-t border-white/5">
+            <div class="space-y-3">
+              <label class="text-sm font-medium text-gray-300">Supplement Forms Supported</label>
+              <div class="pill-group flex flex-wrap gap-2" data-name="supplement_forms">
+                <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Capsules</button>
+                <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Chewables</button>
+                <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Effervescent tablets</button>
+                <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Gels</button>
+                <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Gummies</button>
+                <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Liquids</button>
+                <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Lozenges</button>
+                <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Oral sprays</button>
+                <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Powders</button>
+                <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Softgels</button>
+                <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Tablets</button>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+               <label class="text-sm font-medium text-gray-300">Packaging Capabilities</label>
+               <div class="pill-group flex flex-wrap gap-2" data-name="packaging">
+                  <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Ampoules</button>
+                  <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Blisters</button>
+                  <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Bulk</button>
+                  <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Dropper bottles</button>
+                  <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Jars (glass)</button>
+                  <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Jars (plastic)</button>
+                  <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Pouches</button>
+                  <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Sachets</button>
+                  <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Single-dose tubes</button>
+                  <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Spray bottles</button>
+                  <button type="button" class="pill px-4 py-2 rounded-full border border-border bg-white/5 hover:bg-white/10 text-sm text-gray-300 transition-all select-none">Stick packs</button>
+               </div>
+            </div>
+          </div>
+
+          <div class="pt-4">
+             <button type="submit" id="copackerSubmit" class="w-full py-4 bg-secondary hover:bg-sky-500 text-black font-bold rounded-xl shadow-lg shadow-sky-500/20 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
+              Register Company
+            </button>
+          </div>
+        </form>
+
+        <!-- Success Message -->
+        <div id="copackerSuccess" class="hidden text-center py-12">
+           <div class="w-16 h-16 bg-sky-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="check" class="w-8 h-8 text-secondary"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-white mb-2">Registration Received!</h3>
+          <p class="text-gray-400">Please check your email to verify your account.<br>You'll be notified when matching requests come in.</p>
+          <button onclick="document.getElementById('closeCopackerModal').click()" class="mt-8 text-secondary font-medium hover:text-white transition-colors">Close</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================
+       LOGIC / SCRIPTS
+  ========================= -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // =========================
+    // DATA & CONFIG
+    // =========================
+    const REQUEST_WEBHOOK_URL = 'https://hook.eu2.make.com/8rgorhtlpbxbozuy39ap8ulnfusino4e';
+    const COPACKER_REGISTER_WEBHOOK_URL = 'https://hook.eu2.make.com/b9vc54muqd8898ph4187nrdovte2tiod';
+
+    const COUNTRIES = [
+      "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi","Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo (Congo-Brazzaville)","Costa Rica","Croatia","Cuba","Cyprus","Czechia","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia","Fiji","Finland","France","Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway","Oman","Pakistan","Palau","Palestine State","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Rwanda","Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu","Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan","Vanuatu","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe"
+    ];
+
+    // =========================
+    // DOM HELPERS
+    // =========================
+    const $ = (id) => document.getElementById(id);
+
+    function populateSelect(selectEl, list) {
+      if (!selectEl) return;
+      list.forEach((c) => {
+        const opt = document.createElement("option");
+        opt.value = c;
+        opt.textContent = c;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    // Modal Logic
+    function setupModal(modalId, overlayId, openBtnId, closeBtnId, onOpen = null) {
+      const overlay = $(overlayId);
+      const openBtn = $(openBtnId);
+      const closeBtn = $(closeBtnId);
+
+      function open() {
+        if(onOpen) onOpen();
+        overlay.classList.remove('modal-exit', 'opacity-0', 'pointer-events-none');
+        overlay.classList.add('modal-enter-active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function close() {
+        overlay.classList.remove('modal-enter-active');
+        overlay.classList.add('modal-exit', 'opacity-0', 'pointer-events-none');
+        document.body.style.overflow = '';
+      }
+
+      openBtn?.addEventListener('click', open);
+      closeBtn?.addEventListener('click', close);
+      overlay.addEventListener('click', (e) => {
+        if(e.target === overlay) close();
+      });
+
+      // ESC key handler
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !overlay.classList.contains('opacity-0')) close();
+      });
+    }
+
+    // Form Loading State
+    function setLoading(btn, isLoading, originalText) {
+      if (isLoading) {
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Sending...`;
+        btn.classList.add('opacity-75', 'cursor-not-allowed');
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        btn.classList.remove('opacity-75', 'cursor-not-allowed');
+      }
+    }
+
+    // API Helper
+    async function postJSON(url, data) {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) throw new Error("Network response was not ok");
+      return response.text();
+    }
+
+    // Input Validation (Character Filtering)
+    function initInputFiltering() {
+      const inputs = document.querySelectorAll('input[data-allowed]');
+      inputs.forEach(input => {
+        input.addEventListener('input', () => {
+          const type = input.dataset.allowed;
+          let regex;
+          if (type === 'letters-space') regex = /[^a-zA-Z\s]/g;
+          else if (type === 'alphanum-space') regex = /[^a-zA-Z0-9\s]/g;
+          
+          if (regex) {
+             input.value = input.value.replace(regex, '');
+          }
+        });
+      });
+    }
+
+    // Pill Logic
+    function initPills() {
+      const groups = document.querySelectorAll('.pill-group');
+      groups.forEach(group => {
+        const pills = group.querySelectorAll('.pill');
+        const inputName = group.dataset.name;
+        // Create hidden inputs for form submission
+        const container = document.createElement('div');
+        container.style.display = 'none';
+        group.appendChild(container);
+
+        pills.forEach(pill => {
+          pill.addEventListener('click', () => {
+             pill.classList.toggle('bg-accent');
+             pill.classList.toggle('bg-white/5');
+             pill.classList.toggle('text-black');
+             pill.classList.toggle('text-gray-300');
+             pill.classList.toggle('border-accent');
+             pill.classList.toggle('border-border');
+             
+             // Update hidden inputs
+             container.innerHTML = '';
+             const activePills = Array.from(pills).filter(p => p.classList.contains('bg-accent'));
+             activePills.forEach(p => {
+               const hiddenInput = document.createElement('input');
+               hiddenInput.type = 'hidden';
+               hiddenInput.name = inputName + '[]'; // Array notation for Make.com handling potentially
+               hiddenInput.value = p.textContent;
+               container.appendChild(hiddenInput);
+             });
+             
+             // Also join for simple text field fallback if needed
+             const joinedInput = document.createElement('input');
+             joinedInput.type = 'hidden';
+             joinedInput.name = inputName; 
+             joinedInput.value = activePills.map(p => p.textContent).join(', ');
+             container.appendChild(joinedInput);
+          });
+        });
+      });
+    }
+
+
+    // =========================
+    // INIT
+    // =========================
+    document.addEventListener('DOMContentLoaded', () => {
+      
+      // Populate Country Lists
+      const targetSourceSelect = $('targetSourceSelect');
+      const countrySelect = $('countrySelect');
+      
+      // Request Form Source Dropdown
+      if (targetSourceSelect) {
+        const anyOption = document.createElement('option');
+        anyOption.value = "Global / Any";
+        anyOption.textContent = "Global / Any";
+        targetSourceSelect.appendChild(anyOption);
+        
+        const euOption = document.createElement('option');
+        euOption.value = "European Union";
+        euOption.textContent = "European Union";
+        targetSourceSelect.appendChild(euOption);
+        
+        const usaOption = document.createElement('option');
+        usaOption.value = "USA";
+        usaOption.textContent = "USA";
+        targetSourceSelect.appendChild(usaOption);
+        
+        const sep = document.createElement('option');
+        sep.disabled = true;
+        sep.textContent = "──────────";
+        targetSourceSelect.appendChild(sep);
+        
+        populateSelect(targetSourceSelect, COUNTRIES);
+      }
+
+      // Copacker Form Country Dropdown
+      populateSelect(countrySelect, COUNTRIES);
+
+      // Setup Modals
+      const requestForm = $('requestForm');
+      const requestSuccess = $('requestSuccess');
+      setupModal('requestModalOverlay', 'requestModalOverlay', 'openRequestModal', 'closeRequestModal', () => {
+        requestForm.style.display = 'block';
+        requestSuccess.classList.add('hidden');
+        requestForm.reset();
+      });
+
+      const copackerForm = $('copackerForm');
+      const copackerSuccess = $('copackerSuccess');
+      setupModal('copackerModalOverlay', 'copackerModalOverlay', 'openCopackerModal', 'closeCopackerModal', () => {
+        copackerForm.style.display = 'block';
+        copackerSuccess.classList.add('hidden');
+        copackerForm.reset();
+        // Reset pills visual state
+        document.querySelectorAll('.pill').forEach(p => {
+           p.classList.remove('bg-accent', 'text-black', 'border-accent');
+           p.classList.add('bg-white/5', 'text-gray-300', 'border-border');
+        });
+      });
+
+      // Init Helpers
+      initInputFiltering();
+      initPills();
+
+      // Form Handling: Request
+      if(requestForm) {
+        requestForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const btn = $('requestSubmit');
+          const originalText = btn.innerHTML;
+          
+          setLoading(btn, true);
+
+          try {
+            const formData = new FormData(requestForm);
+            const payload = Object.fromEntries(formData.entries());
+            
+            // Handle number conversion
+            if(payload.quantity) payload.quantity = Number(payload.quantity);
+            if(payload.packSizeValue) payload.packSizeValue = Number(payload.packSizeValue);
+
+            await postJSON(REQUEST_WEBHOOK_URL, payload);
+            
+            requestForm.style.display = 'none';
+            requestSuccess.classList.remove('hidden');
+            requestSuccess.classList.add('fade-in');
+          } catch (err) {
+            alert('Submission failed. Please check your connection and try again.');
+          } finally {
+            setLoading(btn, false, originalText);
+          }
+        });
+      }
+
+      // Form Handling: Copacker
+      if(copackerForm) {
+        copackerForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const btn = $('copackerSubmit');
+          const originalText = btn.innerHTML;
+          
+          setLoading(btn, true);
+
+          try {
+            const formData = new FormData(copackerForm);
+            const payload = Object.fromEntries(formData.entries());
+            
+            // Clean up pill data (get joined string preferred for simple webhook)
+            // The pills logic added both array and string inputs. 
+            // Object.fromEntries takes the last value for a key, which matches our 'joinedInput' logic in initPills
+            
+            await postJSON(COPACKER_REGISTER_WEBHOOK_URL, payload);
+            
+            copackerForm.style.display = 'none';
+            copackerSuccess.classList.remove('hidden');
+            copackerSuccess.classList.add('fade-in');
+          } catch (err) {
+            alert('Registration failed. Please try again.');
+          } finally {
+            setLoading(btn, false, originalText);
+          }
+        });
+      }
+
+    });
+  </script>
 </body>
 </html>
